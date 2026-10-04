@@ -4,7 +4,13 @@ import { LogOut, type LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
-export type NavItem = { to: string; label: string; icon: LucideIcon; exact?: boolean };
+export type NavItem = {
+  to: string;
+  label: string;
+  icon: LucideIcon;
+  exact?: boolean;
+  count?: number;
+};
 
 export function AppShell({
   nav,
@@ -48,7 +54,12 @@ export function AppShell({
               activeProps={{ className: "bg-sidebar-accent !opacity-100 font-semibold" }}
             >
               <n.icon className="h-4 w-4" />
-              {n.label}
+              <span className="flex-1">{n.label}</span>
+              {typeof n.count === "number" && n.count > 0 && (
+                <span className="rounded-full bg-sidebar-primary px-2 py-0.5 text-xs font-bold text-sidebar-primary-foreground">
+                  {n.count}
+                </span>
+              )}
             </Link>
           ))}
         </nav>
@@ -60,7 +71,10 @@ export function AppShell({
         </button>
       </aside>
       <main className="flex-1 p-6 md:p-10">
-        <button onClick={signOut} className="mb-4 text-sm text-muted-foreground underline md:hidden">
+        <button
+          onClick={signOut}
+          className="mb-4 text-sm text-muted-foreground underline md:hidden"
+        >
           Sair
         </button>
         {children}
@@ -69,7 +83,15 @@ export function AppShell({
   );
 }
 
-export function PageHeader({ title, description, action }: { title: string; description?: string; action?: ReactNode }) {
+export function PageHeader({
+  title,
+  description,
+  action,
+}: {
+  title: string;
+  description?: string;
+  action?: ReactNode;
+}) {
   return (
     <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
       <div>
@@ -81,7 +103,15 @@ export function PageHeader({ title, description, action }: { title: string; desc
   );
 }
 
-export function StatCard({ label, value, icon: Icon }: { label: string; value: ReactNode; icon: LucideIcon }) {
+export function StatCard({
+  label,
+  value,
+  icon: Icon,
+}: {
+  label: string;
+  value: ReactNode;
+  icon: LucideIcon;
+}) {
   return (
     <div className="rounded-xl border bg-card p-5 shadow-card">
       <div className="flex items-center justify-between text-sm text-muted-foreground">
@@ -100,7 +130,9 @@ const statusMap = {
 
 export function StatusBadge({ status }: { status: keyof typeof statusMap }) {
   const s = statusMap[status];
-  return <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${s.cls}`}>{s.label}</span>;
+  return (
+    <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${s.cls}`}>{s.label}</span>
+  );
 }
 
 export function Card({ children, className = "" }: { children: ReactNode; className?: string }) {

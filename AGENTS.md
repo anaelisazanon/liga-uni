@@ -1,4 +1,5 @@
 <!-- LOVABLE:BEGIN -->
+
 > [!IMPORTANT]
 > This project is connected to [Lovable](https://lovable.dev). Avoid rewriting
 > published git history — force pushing, or rebasing/amending/squashing commits
@@ -7,8 +8,10 @@
 >
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
+
 <!-- LOVABLE:END -->
 
 ## Liga UNI architecture
+
 - Data access goes through the browser Cloud client with RLS (src/lib/data.ts query options); access rules live in RLS policies, not app code — keeps one security boundary.
 - Roles live in public.user_roles; route gating reads role in src/routes/_authenticated/route.tsx context and lider/admin layouts redirect by role.

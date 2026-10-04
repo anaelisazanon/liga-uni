@@ -10,7 +10,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { membersQuery, myEntityQuery, type Member } from "@/lib/data";
 import { errMsg } from "@/lib/auth";
 
@@ -67,7 +74,9 @@ function EquipePage() {
             <Label>Descrição</Label>
             <Textarea value={descricao} onChange={(e) => setDescricao(e.target.value)} />
           </div>
-          <Button disabled={saveEntity.isPending}>{entity ? "Salvar alterações" : "Cadastrar entidade"}</Button>
+          <Button disabled={saveEntity.isPending}>
+            {entity ? "Salvar alterações" : "Cadastrar entidade"}
+          </Button>
         </form>
       </Card>
       {entity && <Members entityId={entity.id} />}
@@ -82,7 +91,12 @@ function Members({ entityId }: { entityId: string }) {
 
   const save = useMutation({
     mutationFn: async (m: Partial<Member>) => {
-      const payload = { nome: m.nome ?? "", email: m.email ?? "", curso: m.curso ?? "", entity_id: entityId };
+      const payload = {
+        nome: m.nome ?? "",
+        email: m.email ?? "",
+        curso: m.curso ?? "",
+        entity_id: entityId,
+      };
       const { error } = m.id
         ? await supabase.from("members").update(payload).eq("id", m.id)
         : await supabase.from("members").insert(payload);
@@ -125,7 +139,9 @@ function Members({ entityId }: { entityId: string }) {
           <TableBody>
             {data.length === 0 && (
               <TableRow>
-                <TableCell colSpan={4} className="text-center text-muted-foreground">Nenhum membro cadastrado.</TableCell>
+                <TableCell colSpan={4} className="text-center text-muted-foreground">
+                  Nenhum membro cadastrado.
+                </TableCell>
               </TableRow>
             )}
             {data.map((m) => (
@@ -134,8 +150,16 @@ function Members({ entityId }: { entityId: string }) {
                 <TableCell>{m.email}</TableCell>
                 <TableCell>{m.curso}</TableCell>
                 <TableCell className="text-right">
-                  <Button variant="ghost" size="icon" onClick={() => setEditing(m)}><Pencil /></Button>
-                  <Button variant="ghost" size="icon" onClick={() => confirm("Remover membro?") && del.mutate(m.id)}><Trash2 /></Button>
+                  <Button variant="ghost" size="icon" onClick={() => setEditing(m)}>
+                    <Pencil />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => confirm("Remover membro?") && del.mutate(m.id)}
+                  >
+                    <Trash2 />
+                  </Button>
                 </TableCell>
               </TableRow>
             ))}
@@ -166,7 +190,9 @@ function Members({ entityId }: { entityId: string }) {
                   />
                 </div>
               ))}
-              <Button className="w-full" disabled={save.isPending}>Salvar</Button>
+              <Button className="w-full" disabled={save.isPending}>
+                Salvar
+              </Button>
             </form>
           )}
         </DialogContent>

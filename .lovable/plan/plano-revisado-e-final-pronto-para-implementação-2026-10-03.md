@@ -8,7 +8,7 @@ Plataforma de gestão acadêmica com duas interfaces distintas: **Líder de Enti
 
 - **Frontend / Framework**: TanStack Start (React 19) + Tailwind CSS v4 + shadcn/ui
 - **Backend & Banco de Dados**: Lovable Cloud (PostgreSQL + Auth email/senha + RLS/RBAC)
-- **Iconografia / Visual**: Lucide Icons + Fontes *Space Grotesk* (títulos) / *DM Sans* (corpo)
+- **Iconografia / Visual**: Lucide Icons + Fontes _Space Grotesk_ (títulos) / _DM Sans_ (corpo)
 
 ### 🗄️ **Modelagem de Banco de Dados (Schema Postgres)**
 

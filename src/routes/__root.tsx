@@ -71,8 +71,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Liga UNI" },
-      { name: "description", content: "Gestão de entidades acadêmicas, eventos e salas do Ágora." },
+      { title: "Liga UNI · Ágora Tech Park" },
+      {
+        name: "description",
+        content:
+          "Conexão entre o programa Liga Ágora e projetos universitários no Ágora Tech Park (Joinville).",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],

@@ -20,7 +20,14 @@ export const Route = createFileRoute("/_authenticated/lider/calendario")({
   component: CalendarioPage,
 });
 
-type Form = { id?: string; titulo: string; descricao: string; inicio: string; fim: string; local: string };
+type Form = {
+  id?: string;
+  titulo: string;
+  descricao: string;
+  inicio: string;
+  fim: string;
+  local: string;
+};
 const empty = (): Form => ({ titulo: "", descricao: "", inicio: "", fim: "", local: "" });
 
 function CalendarioPage() {
@@ -32,7 +39,8 @@ function CalendarioPage() {
 
   const save = useMutation({
     mutationFn: async (f: Form) => {
-      if (new Date(f.fim) <= new Date(f.inicio)) throw new Error("O término deve ser após o início");
+      if (new Date(f.fim) <= new Date(f.inicio))
+        throw new Error("O término deve ser após o início");
       const payload = {
         titulo: f.titulo,
         descricao: f.descricao,
@@ -72,13 +80,30 @@ function CalendarioPage() {
       <PageHeader
         title="Calendário"
         description="Eventos da sua entidade"
-        action={<Button onClick={() => setForm(empty())}><Plus /> Novo evento</Button>}
+        action={
+          <Button onClick={() => setForm(empty())}>
+            <Plus /> Novo evento
+          </Button>
+        }
       />
       <MonthCalendar
-        items={events.map((e) => ({ id: e.id, title: e.titulo, start: e.inicio, sub: e.local }))}
+        items={events.map((e) => ({
+          id: e.id,
+          title: e.titulo,
+          start: e.inicio,
+          end: e.fim,
+          sub: e.local,
+        }))}
         onItemClick={(id) => {
           const e = events.find((x) => x.id === id)!;
-          setForm({ id: e.id, titulo: e.titulo, descricao: e.descricao, local: e.local, inicio: toLocalInput(e.inicio), fim: toLocalInput(e.fim) });
+          setForm({
+            id: e.id,
+            titulo: e.titulo,
+            descricao: e.descricao,
+            local: e.local,
+            inicio: toLocalInput(e.inicio),
+            fim: toLocalInput(e.fim),
+          });
         }}
       />
       <Dialog open={!!form} onOpenChange={(o) => !o && setForm(null)}>
@@ -87,18 +112,67 @@ function CalendarioPage() {
             <DialogTitle>{form?.id ? "Editar evento" : "Novo evento"}</DialogTitle>
           </DialogHeader>
           {form && (
-            <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); save.mutate(form); }}>
-              <div className="space-y-1.5"><Label>Título</Label><Input required value={form.titulo} onChange={(e) => setForm({ ...form, titulo: e.target.value })} /></div>
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1.5"><Label>Início</Label><Input type="datetime-local" required value={form.inicio} onChange={(e) => setForm({ ...form, inicio: e.target.value })} /></div>
-                <div className="space-y-1.5"><Label>Fim</Label><Input type="datetime-local" required value={form.fim} onChange={(e) => setForm({ ...form, fim: e.target.value })} /></div>
+            <form
+              className="space-y-4"
+              onSubmit={(e) => {
+                e.preventDefault();
+                save.mutate(form);
+              }}
+            >
+              <div className="space-y-1.5">
+                <Label>Título</Label>
+                <Input
+                  required
+                  value={form.titulo}
+                  onChange={(e) => setForm({ ...form, titulo: e.target.value })}
+                />
               </div>
-              <div className="space-y-1.5"><Label>Local</Label><Input value={form.local} onChange={(e) => setForm({ ...form, local: e.target.value })} /></div>
-              <div className="space-y-1.5"><Label>Descrição</Label><Textarea value={form.descricao} onChange={(e) => setForm({ ...form, descricao: e.target.value })} /></div>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label>Início</Label>
+                  <Input
+                    type="datetime-local"
+                    required
+                    value={form.inicio}
+                    onChange={(e) => setForm({ ...form, inicio: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label>Fim</Label>
+                  <Input
+                    type="datetime-local"
+                    required
+                    value={form.fim}
+                    onChange={(e) => setForm({ ...form, fim: e.target.value })}
+                  />
+                </div>
+              </div>
+              <div className="space-y-1.5">
+                <Label>Local</Label>
+                <Input
+                  value={form.local}
+                  onChange={(e) => setForm({ ...form, local: e.target.value })}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label>Descrição</Label>
+                <Textarea
+                  value={form.descricao}
+                  onChange={(e) => setForm({ ...form, descricao: e.target.value })}
+                />
+              </div>
               <div className="flex gap-2">
-                <Button className="flex-1" disabled={save.isPending}>Salvar</Button>
+                <Button className="flex-1" disabled={save.isPending}>
+                  Salvar
+                </Button>
                 {form.id && (
-                  <Button type="button" variant="destructive" onClick={() => confirm("Excluir evento?") && del.mutate(form.id!)}><Trash2 /></Button>
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    onClick={() => confirm("Excluir evento?") && del.mutate(form.id!)}
+                  >
+                    <Trash2 />
+                  </Button>
                 )}
               </div>
             </form>
