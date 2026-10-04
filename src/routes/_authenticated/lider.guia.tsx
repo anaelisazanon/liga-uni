@@ -41,8 +41,50 @@ function LiderGuiaPage() {
     <div className="space-y-8">
       <PageHeader
         title="Como funciona o Portal do Líder"
-        description="Guia rápido do novo padrão de Atividades & Salas em sub-abas, alta pontuação em Staff e Reuniões Liga UNI e Loja de Benefícios."
+        description="Guia rápido do novo padrão de Atividades & Salas em sub-abas, exigências semestrais de permanência, alta pontuação em Staff e Reuniões Liga UNI e Loja de Benefícios."
       />
+
+      {/* Exigências Semestrais de Permanência */}
+      <div className="rounded-2xl border-2 border-destructive/35 bg-destructive/5 p-6 shadow-card">
+        <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-destructive">
+          <HelpCircle className="size-4" /> Exigências Semestrais de Permanência (Renova todo
+          semestre)
+        </div>
+        <h2 className="mt-1 font-display text-xl font-bold">
+          4 metas obrigatórias por semestre para continuar na Liga UNI
+        </h2>
+        <p className="mt-1 text-xs text-muted-foreground max-w-3xl">
+          Na barra lateral (abaixo das suas LigaCoins) e no topo do Painel do Líder você acompanha
+          em tempo real quantas exigências já cumpriu e quantas faltam. Caso alguma equipe não
+          cumpra até o fim do semestre, o Administrador recebe um alerta (<strong>!</strong>):
+        </p>
+        <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4 text-xs">
+          <div className="rounded-xl border border-border bg-card p-3.5">
+            <div className="font-semibold text-foreground">1. Reuniões Liga UNI</div>
+            <div className="mt-1 text-muted-foreground">
+              Presença obrigatória em <strong>todas</strong> as reuniões gerais do semestre.
+            </div>
+          </div>
+          <div className="rounded-xl border border-border bg-card p-3.5">
+            <div className="font-semibold text-foreground">2. Staff em Eventos</div>
+            <div className="mt-1 text-muted-foreground">
+              Ajudar como staff em pelo menos <strong>2 eventos</strong> do Ágora no semestre.
+            </div>
+          </div>
+          <div className="rounded-xl border border-border bg-card p-3.5">
+            <div className="font-semibold text-foreground">3. Capacitações UNI</div>
+            <div className="mt-1 text-muted-foreground">
+              Participar de pelo menos <strong>2 capacitações</strong> oficiais no semestre.
+            </div>
+          </div>
+          <div className="rounded-xl border border-border bg-card p-3.5">
+            <div className="font-semibold text-foreground">4. Oferecer Oficina</div>
+            <div className="mt-1 text-muted-foreground">
+              Ministrar pelo menos <strong>1 oficina</strong> para outras equipes no semestre.
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* Visão geral em 3 passos */}
       <div className="rounded-2xl border border-border bg-card p-6 shadow-card">

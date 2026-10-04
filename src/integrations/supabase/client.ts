@@ -51,8 +51,8 @@ type TableMap = {
   user_roles: Database["public"]["Tables"]["user_roles"]["Row"];
 };
 
-const STORAGE_DB_KEY = "liga_uni_demo_db_v18";
-const STORAGE_USER_KEY = "liga_uni_demo_user_v18";
+const STORAGE_DB_KEY = "liga_uni_demo_db_v19";
+const STORAGE_USER_KEY = "liga_uni_demo_user_v19";
 
 function createInitialDb(): { [K in keyof TableMap]: TableMap[K][] } {
   const now = new Date().toISOString();
@@ -189,10 +189,10 @@ function createInitialDb(): { [K in keyof TableMap]: TableMap[K][] } {
       },
       {
         id: "ev-4",
-        entity_id: "ent-2",
-        titulo: "Apresentação dos Protótipos IC e EV — Fórmula CEM",
+        entity_id: "ent-12",
+        titulo: "Apresentação do Protótipo Híbrido a Hidrogênio — PantH₂era E-Racing",
         descricao:
-          "Demonstração técnica dos veículos Fórmula-SAE a combustão e elétrico desenvolvidos na UFSC Joinville.",
+          "Demonstração técnica do veículo Fórmula-SAE híbrido com sistema de hidrogênio desenvolvido na UFSC Joinville.",
         local: "Auditório Ágora Tech Park",
         inicio: inDays(4, 15),
         fim: inDays(4, 18),
@@ -201,9 +201,9 @@ function createInitialDb(): { [K in keyof TableMap]: TableMap[K][] } {
       {
         id: "ev-5",
         entity_id: "ent-2",
-        titulo: "Revisão de Projeto para Competição SAE Brasil",
+        titulo: "Planejamento de Integração Esportiva — AAACCT (UDESC)",
         descricao:
-          "Reunião dos subsistemas de powertrain, aerodinâmica e eletrônica da equipe Fórmula CEM.",
+          "Reunião da Associação Atlética Acadêmica do CCT para organização dos jogos universitários e integração.",
         local: "Sala compartilhada Ágora.Share",
         inicio: inDays(8, 14),
         fim: inDays(8, 17),
@@ -241,12 +241,12 @@ function createInitialDb(): { [K in keyof TableMap]: TableMap[K][] } {
       },
       {
         id: "res-3",
-        entity_id: "ent-2",
+        entity_id: "ent-12",
         event_id: "ev-4",
         room_id: "room-3",
-        requested_by: "user-leader-2",
+        requested_by: "user-leader-12",
         purpose: "capacitacao_geral",
-        motivo: "Apresentação dos Protótipos IC e EV da Fórmula CEM (UFSC Joinville)",
+        motivo: "Apresentação do Protótipo Híbrido da PantH₂era E-Racing (UFSC Joinville)",
         inicio: inDays(4, 15),
         fim: inDays(4, 18),
         status: "approved",
@@ -260,7 +260,7 @@ function createInitialDb(): { [K in keyof TableMap]: TableMap[K][] } {
         room_id: "room-2",
         requested_by: "user-leader-2",
         purpose: "reuniao_projeto",
-        motivo: "Revisão de Projeto para Competição SAE Brasil — Fórmula CEM (UFSC)",
+        motivo: "Planejamento de Integração Esportiva — AAACCT (UDESC Joinville)",
         inicio: inDays(8, 14),
         fim: inDays(8, 17),
         status: "pending",
@@ -343,8 +343,16 @@ function createInitialDb(): { [K in keyof TableMap]: TableMap[K][] } {
         id: "treg-2",
         training_id: "tr-1",
         entity_id: "ent-2",
-        participantes: "Lucas Ferreira, Mariana Alves",
+        participantes: "César Augusto, Milena Soares",
         moedas_liberadas: false,
+        created_at: now,
+      },
+      {
+        id: "treg-quasar-1",
+        training_id: "tr-past-1",
+        entity_id: "ent-udesc-ficticio",
+        participantes: "Marcos Vinícius",
+        moedas_liberadas: true,
         created_at: now,
       },
     ],
@@ -421,7 +429,7 @@ function createInitialDb(): { [K in keyof TableMap]: TableMap[K][] } {
         id: "sv-2",
         call_id: "sc-1",
         entity_id: "ent-2",
-        participantes: "Gabriel Rocha, Fernanda Lima",
+        participantes: "César Augusto, Milena Soares",
         observacao: "Apoio na montagem de estandes e credenciamento.",
         moedas_liberadas: false,
         created_at: now,
@@ -462,18 +470,34 @@ function createInitialDb(): { [K in keyof TableMap]: TableMap[K][] } {
       },
       {
         id: "pw-2",
-        entity_id: "ent-2",
+        entity_id: "ent-12",
         room_id: "room-4",
-        titulo: "Telemetria e Aquisição de Dados em Protótipos de Competição",
+        titulo: "Sistemas Híbridos e Células a Hidrogênio em Protótipos de Competição",
         descricao:
-          "Compartilhamento de práticas da Fórmula CEM sobre instrumentação eletrônica e análise de dados em pista.",
-        ministrantes: "Mariana Alves, Lucas Ferreira",
+          "Compartilhamento de práticas da PantH₂era E-Racing (UFSC) sobre instrumentação eletrônica e powertrain híbrido.",
+        ministrantes: "Otávio Medeiros, Victória Cunha",
         em_conjunto: false,
         partner_entity_id: null,
         data_sugerida: inDays(11, 16),
         fim: inDays(11, 18),
         status: "pending",
         moedas_liberadas: false,
+        created_at: now,
+      },
+      {
+        id: "pw-quasar-1",
+        entity_id: "ent-udesc-ficticio",
+        room_id: "room-1",
+        titulo: "Introdução a Microcontroladores para Sistemas Autônomos",
+        descricao:
+          "Oficina introdutória ministrada pelo Grupo Quasar (UDESC — Fictício) no início do semestre.",
+        ministrantes: "Marcos Vinícius, Camila Rocha",
+        em_conjunto: false,
+        partner_entity_id: null,
+        data_sugerida: inDays(-6, 14),
+        fim: inDays(-6, 16),
+        status: "approved",
+        moedas_liberadas: true,
         created_at: now,
       },
     ],

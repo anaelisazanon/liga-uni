@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import {
+  AlertTriangle,
   ArrowRight,
   Building2,
   ClipboardCheck,
@@ -12,6 +13,7 @@ import {
   Lightbulb,
   Megaphone,
   MessageSquare,
+  RefreshCw,
 } from "lucide-react";
 import { PageHeader, StatCard, StatusBadge } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
@@ -22,7 +24,9 @@ import {
   calcStaffCoins,
   calcTrainingCoins,
   calcWorkshopCoins,
+  calculateSemesterRequirements,
   countParticipants,
+  CURRENT_SEMESTER_LABEL,
   entitiesQuery,
   generalMeetingsQuery,
   leaderRequestsQuery,
@@ -69,7 +73,7 @@ function AdminHome() {
   const pendingMeetingCoins = attendances.filter((a) => a.presente && !a.moedas_liberadas);
   const pendingRedemptions = redemptions.filter((r) => r.status === "pending");
   const pendingLeaders = leaderReqs.filter((r) => r.status === "pending");
-  const openTickets = tickets.filter((t) => t.status !== "resolved");
+  const openTickets = tickets.filter((t) => t.status === "pending");
 
   const totalPendingApprovals =
     pendingRes.length +
@@ -77,29 +81,32 @@ function AdminHome() {
     pendingStaffCoins.length +
     pendingTrainingCoins.length +
     pendingMeetingCoins.length +
-    pendingRedemptions.length;
+    pendingRedemptions.length +
+    pendingLeaders.length;
+
+  // Avalia quais equipes não cumpriram as exigências semestrais
+  const nonCompliantEntities = entities
+    .map((e) => ({
+      entity: e,
+      reqs: calculateSemesterRequirements({
+        entityId: e.id,
+        generalMeetings: meetings,
+        meetingAttendances: attendances,
+        staffVolunteers: volunteers,
+        trainingRegistrations: trainingRegs,
+        peerWorkshops: workshops,
+      }),
+    }))
+    .filter((x) => !x.reqs.isCompliant)
+    .sort((a, b) => a.reqs.fulfilledCount - b.reqs.fulfilledCount);
 
   const approvalShortcuts = [
     {
-      tab: "reunioes-equipe" as const,
-      label: "Reuniões de Equipe",
-      desc: "Reservas de salas das equipes",
-      count: pendingRes.length,
-      icon: DoorOpen,
-    },
-    {
-      tab: "oficinas" as const,
-      label: "Oficinas de Equipes",
-      desc: "Aprovar sala e liberar LC",
-      count: pendingWorkshops.length,
-      icon: Lightbulb,
-    },
-    {
-      tab: "staff" as const,
-      label: "Staff em Eventos",
-      desc: "Liberar alta pontuação de Staff",
-      count: pendingStaffCoins.length,
-      icon: HandHelping,
+      tab: "reunioes" as const,
+      label: "Reuniões Liga UNI",
+      desc: "Liberar alta pontuação de Reunião",
+      count: pendingMeetingCoins.length,
+      icon: Megaphone,
     },
     {
       tab: "capacitacoes" as const,
@@ -109,17 +116,31 @@ function AdminHome() {
       icon: GraduationCap,
     },
     {
-      tab: "reunioes-uni" as const,
-      label: "Reuniões Liga UNI",
-      desc: "Liberar alta pontuação de Reunião",
-      count: pendingMeetingCoins.length,
-      icon: Megaphone,
+      tab: "staff" as const,
+      label: "Staff em Eventos",
+      desc: "Liberar alta pontuação de Staff",
+      count: pendingStaffCoins.length,
+      icon: HandHelping,
     },
     {
-      tab: "premios" as const,
-      label: "Prêmios LigaCoins",
-      desc: "Aprovar resgates da loja",
-      count: pendingRedemptions.length,
+      tab: "oficinas" as const,
+      label: "Oficinas de Equipes",
+      desc: "Aprovar sala e liberar LC",
+      count: pendingWorkshops.length,
+      icon: Lightbulb,
+    },
+    {
+      tab: "reservas" as const,
+      label: "Reservas de Sala",
+      desc: "Reuniões de equipe e oficinas",
+      count: pendingRes.length,
+      icon: DoorOpen,
+    },
+    {
+      tab: "beneficios-cadastros" as const,
+      label: "Benefícios & Cadastros",
+      desc: "Resgates da loja e novos líderes",
+      count: pendingRedemptions.length + pendingLeaders.length,
       icon: Gift,
     },
   ];
@@ -130,12 +151,12 @@ function AdminHome() {
     entityName: string;
     category: string;
     tab:
-      | "reunioes-equipe"
-      | "oficinas"
-      | "staff"
+      | "reunioes"
       | "capacitacoes"
-      | "reunioes-uni"
-      | "premios";
+      | "staff"
+      | "oficinas"
+      | "reservas"
+      | "beneficios-cadastros";
     dateLabel: string;
     coinsLabel?: string;
     status: "pending" | "approved" | "rejected" | "coins_pending";
@@ -146,8 +167,8 @@ function AdminHome() {
       id: `res-${r.id}`,
       title: `${roomName(r.room_id)} · ${r.motivo ?? "Reunião de equipe"}`,
       entityName: entityName(r.entity_id),
-      category: "Reunião de Equipe",
-      tab: "reunioes-equipe" as const,
+      category: "Reserva de Sala",
+      tab: "reservas" as const,
       dateLabel: fmtDateTime(r.inicio),
       status: r.status,
     })),
@@ -161,7 +182,7 @@ function AdminHome() {
         entityName: entityName(w.entity_id),
         category: "Oficina de Equipe",
         tab: "oficinas" as const,
-        dateLabel: w.inicio ? fmtDateTime(w.inicio) : fmtDateTime(w.created_at),
+        dateLabel: w.data_sugerida ? fmtDateTime(w.data_sugerida) : fmtDateTime(w.created_at),
         coinsLabel: `+${lc} LC`,
         status: w.status === "pending" ? ("pending" as const) : ("coins_pending" as const),
       };
@@ -172,7 +193,7 @@ function AdminHome() {
       const lc = calcStaffCoins(count);
       return {
         id: `sv-${v.id}`,
-        title: call?.titulo ?? "Staff em Evento",
+        title: call?.evento ?? "Staff em Evento",
         entityName: entityName(v.entity_id),
         category: "Staff em Evento",
         tab: "staff" as const,
@@ -205,7 +226,7 @@ function AdminHome() {
         title: m?.titulo ?? "Reunião Liga UNI",
         entityName: entityName(a.entity_id),
         category: "Reunião Liga UNI",
-        tab: "reunioes-uni" as const,
+        tab: "reunioes" as const,
         dateLabel: m ? fmtDateTime(m.inicio) : fmtDateTime(a.created_at),
         coinsLabel: `+${lc} LC`,
         status: "coins_pending" as const,
@@ -216,7 +237,7 @@ function AdminHome() {
       title: `Resgate: ${r.recompensa_titulo}`,
       entityName: entityName(r.entity_id),
       category: "Prêmio LigaCoins",
-      tab: "premios" as const,
+      tab: "beneficios-cadastros" as const,
       dateLabel: fmtDateTime(r.created_at),
       coinsLabel: `-${r.custo} LC`,
       status: r.status,
@@ -227,7 +248,7 @@ function AdminHome() {
     <div className="space-y-8">
       <PageHeader
         title="Painel Administrativo"
-        description="Visão geral das entidades universitárias, aprovações por categoria e liberação de LigaCoins no Ágora Tech Park."
+        description="Visão geral das entidades universitárias, aprovações por categoria, alertas semestrais e liberação de LigaCoins no Ágora Tech Park."
         action={
           <Button variant="hero" asChild>
             <Link to="/admin/aprovacoes">
@@ -237,6 +258,82 @@ function AdminHome() {
           </Button>
         }
       />
+
+      {/* Aviso (!) de Equipes que NÃO cumpriram as exigências semestrais */}
+      {nonCompliantEntities.length > 0 && (
+        <div className="rounded-2xl border-2 border-destructive/50 bg-destructive/5 p-5 shadow-card space-y-4">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div className="flex items-start gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-destructive text-destructive-foreground font-display text-xl font-black shadow-sm">
+                !
+              </div>
+              <div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="inline-flex items-center gap-1 rounded-full bg-destructive/15 px-2.5 py-0.5 text-xs font-bold text-destructive">
+                    <AlertTriangle className="h-3.5 w-3.5" /> Alerta de Permanência Semestral (
+                    {nonCompliantEntities.length} equipe
+                    {nonCompliantEntities.length > 1 ? "s" : ""})
+                  </span>
+                  <span className="inline-flex items-center gap-1 rounded-full bg-secondary px-2.5 py-0.5 text-[11px] font-medium text-muted-foreground">
+                    <RefreshCw className="h-3 w-3" /> Semestre {CURRENT_SEMESTER_LABEL} · Renova
+                    todo semestre
+                  </span>
+                </div>
+                <h2 className="mt-1 font-display text-base sm:text-lg font-bold text-foreground">
+                  Atenção (!): Equipes que ainda não cumpriram as exigências semestrais da Liga UNI
+                </h2>
+                <p className="text-xs text-muted-foreground">
+                  Para continuar na Liga UNI semestralmente, cada projeto precisa estar presente em
+                  todas as Reuniões Liga UNI, ajudar em 2 eventos como Staff, participar de 2
+                  Capacitações UNI e oferecer 1 Oficina.
+                </p>
+              </div>
+            </div>
+            <Button size="sm" variant="outline" asChild>
+              <Link to="/admin/entidades">
+                Ver em Entidades <ArrowRight className="ml-1 size-3.5" />
+              </Link>
+            </Button>
+          </div>
+
+          <div className="grid gap-3 md:grid-cols-2">
+            {nonCompliantEntities.map(({ entity: ent, reqs }) => {
+              const missingItems = reqs.items.filter((i) => !i.fulfilled);
+              return (
+                <div
+                  key={ent.id}
+                  className="rounded-xl border border-destructive/35 bg-card p-4 flex flex-col justify-between gap-3 shadow-xs"
+                >
+                  <div>
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="font-display text-sm font-bold text-foreground">
+                        {ent.nome}
+                      </span>
+                      <span className="inline-flex items-center gap-1 rounded-full bg-destructive/15 px-2.5 py-0.5 text-xs font-bold text-destructive shrink-0">
+                        ! {reqs.fulfilledCount}/{reqs.totalRequirements} cumpridas
+                      </span>
+                    </div>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      Falta(m) <strong>{reqs.missingRequirementsCount}</strong> exigência(s) neste
+                      semestre:
+                    </p>
+                    <div className="mt-2 flex flex-wrap gap-1.5">
+                      {missingItems.map((m) => (
+                        <span
+                          key={m.key}
+                          className="inline-flex items-center gap-1 rounded-md border border-destructive/30 bg-destructive/10 px-2 py-0.5 text-[11px] font-semibold text-destructive"
+                        >
+                          • {m.shortTitle}: {m.statusText} ({m.current}/{m.target})
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {pendingLeaders.length > 0 && (
         <div className="rounded-xl border border-warning/40 bg-warning/10 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -256,7 +353,11 @@ function AdminHome() {
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
         <StatCard label="Entidades ativas" value={entities.length} icon={Building2} />
-        <StatCard label="Central de Aprovações" value={totalPendingApprovals} icon={ClipboardCheck} />
+        <StatCard
+          label="Central de Aprovações"
+          value={totalPendingApprovals}
+          icon={ClipboardCheck}
+        />
         <StatCard
           label="Reuniões Liga UNI"
           value={meetings.filter((m) => m.ativa).length}

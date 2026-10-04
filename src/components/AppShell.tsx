@@ -2,6 +2,7 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState, type ReactNode } from "react";
 import {
+  AlertTriangle,
   ArrowLeftRight,
   BookOpen,
   CheckCircle2,
@@ -34,8 +35,18 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { adminMessagesQuery, CHAMADO_TOPICOS } from "@/lib/data";
-import { DEMO_ADMIN_EMAIL, DEMO_LEADER_EMAIL, DEMO_PASSWORD, isDemoLoginEnabled } from "@/lib/demo";
+import {
+  adminMessagesQuery,
+  CHAMADO_TOPICOS,
+  type SemesterRequirementsSummary,
+} from "@/lib/data";
+import {
+  DEMO_ADMIN_EMAIL,
+  DEMO_LEADER_EMAIL,
+  DEMO_PASSWORD,
+  DEMO_PENDING_LEADER_EMAIL,
+  isDemoLoginEnabled,
+} from "@/lib/demo";
 import { errMsg, fmtDateTime } from "@/lib/auth";
 
 export type NavChildItem = {
@@ -66,6 +77,8 @@ export function AppShell({
   coinsBalance,
   coinsPending,
   coinsTo,
+  semesterRequirements,
+  adminSemesterAlertsCount,
   guideTo,
   contactEntityId,
   children,
@@ -77,6 +90,8 @@ export function AppShell({
   coinsBalance?: number;
   coinsPending?: number;
   coinsTo?: string;
+  semesterRequirements?: SemesterRequirementsSummary;
+  adminSemesterAlertsCount?: number;
   guideTo?: string;
   contactEntityId?: string;
   children: ReactNode;
@@ -93,9 +108,7 @@ export function AppShell({
     navigate({ to: "/auth", replace: true });
   };
 
-  const switchDemoRole = async () => {
-    const targetEmail = isAdminBadge ? DEMO_LEADER_EMAIL : DEMO_ADMIN_EMAIL;
-    const targetPath = isAdminBadge ? "/lider" : "/admin";
+  const loginDemoEmail = async (targetEmail: string, targetPath: "/lider" | "/admin", label: string) => {
     await qc.cancelQueries();
     qc.clear();
     const { error } = await supabase.auth.signInWithPassword({
@@ -106,22 +119,28 @@ export function AppShell({
       toast.error(errMsg(error));
       return;
     }
-    toast.success(
-      isAdminBadge
-        ? "Alternado para visão de Líder (GERM)!"
-        : "Alternado para visão de Administrador!",
-    );
+    toast.success(`Alternado para ${label}!`);
     navigate({ to: targetPath, replace: true });
+  };
+
+  const switchDemoRole = async () => {
+    const targetEmail = isAdminBadge ? DEMO_LEADER_EMAIL : DEMO_ADMIN_EMAIL;
+    const targetPath = isAdminBadge ? "/lider" : "/admin";
+    await loginDemoEmail(
+      targetEmail,
+      targetPath,
+      isAdminBadge ? "visão de Líder (GERM)" : "visão de Administrador",
+    );
   };
 
   return (
     <div className="flex min-h-screen flex-col bg-background md:flex-row">
       <aside className="flex flex-col bg-sidebar text-sidebar-foreground md:sticky md:top-0 md:h-screen md:w-64">
-        <div className="px-6 py-6">
+        <div className="px-6 py-5">
           <div className="font-display text-xl font-bold">
             Liga <span className="text-sidebar-primary">UNI</span>
           </div>
-          <span className="mt-3 inline-block rounded-full bg-sidebar-primary px-2.5 py-0.5 text-xs font-semibold text-sidebar-primary-foreground">
+          <span className="mt-2.5 inline-block rounded-full bg-sidebar-primary px-2.5 py-0.5 text-xs font-semibold text-sidebar-primary-foreground">
             {badge}
           </span>
           {subtitle &&
@@ -129,7 +148,7 @@ export function AppShell({
               <Link
                 to={subtitleTo}
                 title="Clique para editar dados do projeto, avisos por e-mail e membros"
-                className="group mt-2.5 flex items-center justify-between gap-2 rounded-lg border border-sidebar-border bg-sidebar-accent/50 px-3 py-2 text-xs font-medium transition hover:bg-sidebar-accent"
+                className="group mt-2 flex items-center justify-between gap-2 rounded-lg border border-sidebar-border bg-sidebar-accent/50 px-3 py-2 text-xs font-medium transition hover:bg-sidebar-accent"
               >
                 <span className="line-clamp-2 leading-snug">{subtitle}</span>
                 <Pencil className="h-3.5 w-3.5 shrink-0 opacity-70 group-hover:opacity-100" />
@@ -142,7 +161,7 @@ export function AppShell({
             <Link
               to={coinsTo ?? "/lider/ligacoins"}
               title="Clique para abrir a Central LigaCoins (Como funciona, Benefícios, Ranking, Entradas e Saídas)"
-              className="group mt-2.5 block rounded-lg border border-amber-400/30 bg-amber-500/15 px-3 py-2 text-xs transition hover:border-amber-400/60 hover:bg-amber-500/25"
+              className="group mt-2 block rounded-lg border border-amber-400/30 bg-amber-500/15 px-3 py-2 text-xs transition hover:border-amber-400/60 hover:bg-amber-500/25"
             >
               <div className="flex items-center justify-between">
                 <span className="inline-flex items-center gap-1.5 font-semibold text-amber-300">
@@ -162,6 +181,75 @@ export function AppShell({
               )}
             </Link>
           )}
+
+          {/* Card pequeno de Exigências Semestrais logo abaixo das moedas */}
+          {semesterRequirements && (
+            <Link
+              to="/lider"
+              title="Exigências semestrais para continuar na Liga UNI (renova todo semestre)"
+              className={
+                semesterRequirements.isCompliant
+                  ? "group mt-2 block rounded-lg border border-emerald-400/40 bg-emerald-500/15 px-3 py-2 text-xs transition hover:bg-emerald-500/25"
+                  : "group mt-2 block rounded-lg border border-red-400/50 bg-red-500/20 px-3 py-2 text-xs transition hover:border-red-400/80 hover:bg-red-500/30"
+              }
+            >
+              <div className="flex items-center justify-between gap-1.5">
+                <span
+                  className={
+                    semesterRequirements.isCompliant
+                      ? "inline-flex items-center gap-1.5 font-bold text-emerald-300"
+                      : "inline-flex items-center gap-1.5 font-bold text-red-200"
+                  }
+                >
+                  {semesterRequirements.isCompliant ? (
+                    <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-emerald-300" />
+                  ) : (
+                    <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-red-300" />
+                  )}
+                  <span>
+                    {semesterRequirements.fulfilledCount}/{semesterRequirements.totalRequirements}{" "}
+                    exigências semestrais cumpridas
+                  </span>
+                </span>
+                <ChevronRight className="h-3.5 w-3.5 shrink-0 opacity-75 transition group-hover:translate-x-0.5" />
+              </div>
+              <div
+                className={
+                  semesterRequirements.isCompliant
+                    ? "mt-0.5 text-[10px] text-emerald-200/85"
+                    : "mt-0.5 text-[10px] text-red-200/90"
+                }
+              >
+                {semesterRequirements.isCompliant
+                  ? `Semestre ${semesterRequirements.semesterLabel} em dia`
+                  : `Falta(m) ${semesterRequirements.missingRequirementsCount} p/ manter vaga (${semesterRequirements.semesterLabel})`}
+              </div>
+            </Link>
+          )}
+
+          {/* Card de aviso ! para o Admin quando há equipes com exigências semestrais pendentes */}
+          {isAdminBadge &&
+            typeof adminSemesterAlertsCount === "number" &&
+            adminSemesterAlertsCount > 0 && (
+              <Link
+                to="/admin"
+                title="Equipes que ainda não cumpriram as exigências semestrais da Liga UNI"
+                className="group mt-2 block rounded-lg border border-red-400/50 bg-red-500/20 px-3 py-2 text-xs transition hover:border-red-400/80 hover:bg-red-500/30"
+              >
+                <div className="flex items-center justify-between gap-1.5">
+                  <span className="inline-flex items-center gap-1.5 font-bold text-red-200">
+                    <span className="inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-red-500 text-[11px] font-black text-white">
+                      !
+                    </span>
+                    <span>{adminSemesterAlertsCount} time(s) c/ exigências pendentes</span>
+                  </span>
+                  <ChevronRight className="h-3.5 w-3.5 shrink-0 text-red-200 opacity-75" />
+                </div>
+                <div className="mt-0.5 text-[10px] text-red-200/90">
+                  Ver alerta de permanência semestral
+                </div>
+              </Link>
+            )}
         </div>
         <nav className="flex gap-1 overflow-x-auto px-3 pb-3 md:flex-1 md:flex-col md:overflow-y-auto">
           {nav.map((n) => (
@@ -229,16 +317,40 @@ export function AppShell({
           )}
           {contactEntityId && <ContactAdminDialog entityId={contactEntityId} />}
           {showDemo && (
-            <button
-              type="button"
-              onClick={switchDemoRole}
-              className="flex w-full items-center gap-3 rounded-lg border border-sidebar-border/70 bg-sidebar-accent/25 px-3 py-2 text-xs font-medium text-sidebar-foreground/90 transition hover:bg-sidebar-accent hover:text-sidebar-foreground"
-            >
-              <ArrowLeftRight className="h-3.5 w-3.5 text-sidebar-primary" />
-              <span className="flex-1 text-left">
-                {isAdminBadge ? "Alternar p/ Líder (Demo)" : "Alternar p/ Admin (Demo)"}
-              </span>
-            </button>
+            <div className="space-y-1">
+              <button
+                type="button"
+                onClick={switchDemoRole}
+                className="flex w-full items-center gap-2.5 rounded-lg border border-sidebar-border/70 bg-sidebar-accent/25 px-3 py-1.5 text-[11px] font-medium text-sidebar-foreground/90 transition hover:bg-sidebar-accent hover:text-sidebar-foreground"
+              >
+                <ArrowLeftRight className="h-3.5 w-3.5 shrink-0 text-sidebar-primary" />
+                <span className="flex-1 text-left truncate">
+                  {isAdminBadge ? "Demo: Líder GERM (UDESC)" : "Demo: Visão Admin"}
+                </span>
+              </button>
+              <button
+                type="button"
+                onClick={() =>
+                  loginDemoEmail(
+                    subtitle?.includes("Quasar")
+                      ? DEMO_LEADER_EMAIL
+                      : DEMO_PENDING_LEADER_EMAIL,
+                    "/lider",
+                    subtitle?.includes("Quasar")
+                      ? "Líder GERM (UDESC)"
+                      : "Grupo Quasar (UDESC — Teste Pendências)",
+                  )
+                }
+                className="flex w-full items-center gap-2.5 rounded-lg border border-red-400/35 bg-red-500/15 px-3 py-1.5 text-[11px] font-medium text-red-200 transition hover:bg-red-500/25"
+              >
+                <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-red-300" />
+                <span className="flex-1 text-left truncate">
+                  {subtitle?.includes("Quasar")
+                    ? "Voltar p/ GERM (UDESC)"
+                    : "Demo: Quasar UDESC (Pendências)"}
+                </span>
+              </button>
+            </div>
           )}
           <button
             onClick={signOut}

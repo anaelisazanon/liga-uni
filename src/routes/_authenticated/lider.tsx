@@ -12,6 +12,7 @@ import {
 import { AppShell, type NavItem } from "@/components/AppShell";
 import {
   calculateEntityCoins,
+  calculateSemesterRequirements,
   generalMeetingsQuery,
   meetingAttendancesQuery,
   myEntityQuery,
@@ -60,6 +61,17 @@ function LiderLayout() {
     generalMeetings: meetings,
     rewardRedemptions: redemptions,
   });
+
+  const semesterRequirements = entity
+    ? calculateSemesterRequirements({
+        entityId: entity.id,
+        generalMeetings: meetings,
+        meetingAttendances: attendances,
+        staffVolunteers: staffVols,
+        trainingRegistrations: trainingRegs,
+        peerWorkshops: workshops,
+      })
+    : undefined;
 
   const now = new Date();
   const activeTrainingsCount = trainings.filter(
@@ -133,6 +145,7 @@ function LiderLayout() {
       coinsBalance={entity ? coins.balanceCredits : undefined}
       coinsPending={entity ? coins.pendingCredits : undefined}
       coinsTo="/lider/ligacoins"
+      semesterRequirements={semesterRequirements}
       guideTo="/lider/guia"
       contactEntityId={entity?.id}
     >

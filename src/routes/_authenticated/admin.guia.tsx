@@ -39,8 +39,27 @@ function AdminGuiaPage() {
     <div className="space-y-8">
       <PageHeader
         title="Como funciona o Painel do Administrador"
-        description="Guia completo da Central de Aprovações em sub-abas horizontais, gestão de atividades e liberação de LigaCoins."
+        description="Guia completo da Central de Aprovações em sub-abas horizontais, alertas de exigências semestrais (!), gestão de atividades e liberação de LigaCoins."
       />
+
+      {/* Alerta Semestral (!) */}
+      <div className="rounded-2xl border-2 border-destructive/35 bg-destructive/5 p-6 shadow-card">
+        <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-destructive">
+          <ShieldCheck className="size-4" /> Monitoramento Semestral de Permanência (!)
+        </div>
+        <h2 className="mt-1 font-display text-xl font-bold">
+          Aviso automático (!) quando alguma equipe não cumpre as exigências do semestre
+        </h2>
+        <p className="mt-1 text-xs text-muted-foreground max-w-3xl">
+          A cada semestre (renovado semestralmente), todas as entidades precisam cumprir 4 metas:
+          presença em <strong>todas as Reuniões Liga UNI</strong>, atuar em{" "}
+          <strong>2 eventos como Staff</strong>, participar de{" "}
+          <strong>2 Capacitações UNI</strong> e oferecer <strong>1 Oficina</strong>. Quando uma
+          equipe está pendente (como o <em>Grupo Quasar — UDESC Fictício</em> para teste), o Admin
+          visualiza um alerta <strong>!</strong> na barra lateral, na Visão Geral e na aba{" "}
+          <strong>Entidades → ! Exigências Pendentes</strong>.
+        </p>
+      </div>
 
       {/* Fluxo da Central de Aprovações em sub-abas */}
       <div className="rounded-2xl border border-border bg-card p-6 shadow-card">

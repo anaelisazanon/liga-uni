@@ -1,5 +1,6 @@
 // TODO remover antes de uso real
 export const DEMO_LEADER_EMAIL = "lider.teste@example.com";
+export const DEMO_PENDING_LEADER_EMAIL = "lider.pendente@example.com";
 export const DEMO_ADMIN_EMAIL = "admin.teste@example.com";
 export const DEMO_PASSWORD = "Teste@12345";
 

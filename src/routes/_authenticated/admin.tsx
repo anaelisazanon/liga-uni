@@ -16,6 +16,9 @@ import {
 import { AppShell } from "@/components/AppShell";
 import {
   adminMessagesQuery,
+  calculateSemesterRequirements,
+  entitiesQuery,
+  generalMeetingsQuery,
   leaderRequestsQuery,
   meetingAttendancesQuery,
   peerWorkshopsQuery,
@@ -35,6 +38,8 @@ export const Route = createFileRoute("/_authenticated/admin")({
 
 function AdminLayout() {
   const location = useLocation();
+  const { data: entities = [] } = useQuery(entitiesQuery);
+  const { data: meetings = [] } = useQuery(generalMeetingsQuery);
   const { data: res = [] } = useQuery(reservationsQuery());
   const { data: reqs = [] } = useQuery(leaderRequestsQuery);
   const { data: trainingRegs = [] } = useQuery(trainingRegistrationsQuery());
@@ -43,6 +48,18 @@ function AdminLayout() {
   const { data: attendances = [] } = useQuery(meetingAttendancesQuery());
   const { data: redemptions = [] } = useQuery(rewardRedemptionsQuery());
   const { data: msgs = [] } = useQuery(adminMessagesQuery());
+
+  const adminSemesterAlertsCount = entities.filter(
+    (e) =>
+      !calculateSemesterRequirements({
+        entityId: e.id,
+        generalMeetings: meetings,
+        meetingAttendances: attendances,
+        staffVolunteers: staffVols,
+        trainingRegistrations: trainingRegs,
+        peerWorkshops: workshops,
+      }).isCompliant,
+  ).length;
 
   const pendingMeetingsCount = attendances.filter((a) => a.presente && !a.moedas_liberadas).length;
   const pendingTrainingsCount = trainingRegs.filter((r) => !r.moedas_liberadas).length;
@@ -136,7 +153,13 @@ function AdminLayout() {
   ];
 
   return (
-    <AppShell nav={nav} badge="Administrador" subtitle="Gestão do Ágora" guideTo="/admin/guia">
+    <AppShell
+      nav={nav}
+      badge="Administrador"
+      subtitle="Gestão do Ágora"
+      adminSemesterAlertsCount={adminSemesterAlertsCount}
+      guideTo="/admin/guia"
+    >
       <Outlet />
     </AppShell>
   );

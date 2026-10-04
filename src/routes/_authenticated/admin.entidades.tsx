@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { Building2, Check, UserPlus, X } from "lucide-react";
+import { AlertTriangle, Building2, Check, CheckCircle2, UserPlus, X } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader, StatusBadge } from "@/components/AppShell";
@@ -26,9 +26,16 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import {
+  calculateSemesterRequirements,
+  CURRENT_SEMESTER_LABEL,
   entitiesQuery,
+  generalMeetingsQuery,
   leaderRequestsQuery,
+  meetingAttendancesQuery,
   membersQuery,
+  peerWorkshopsQuery,
+  staffVolunteersQuery,
+  trainingRegistrationsQuery,
   type LeaderRequest,
 } from "@/lib/data";
 import { errMsg, fmtDateTime } from "@/lib/auth";
@@ -49,8 +56,8 @@ function EntidadesPage() {
   return (
     <>
       <PageHeader
-        title="Entidades"
-        description={`${entities.length} entidades ativas · ${members.length} membros · ${pendingReqCount} cadastro(s) pendente(s)`}
+        title="Entidades Universitárias de Joinville"
+        description={`${entities.length} entidades na Liga UNI (UDESC, UFSC, IFSC e Univille) · ${members.length} membros · ${pendingReqCount} cadastro(s) pendente(s)`}
       />
 
       <Tabs
@@ -86,22 +93,43 @@ function EntidadesPage() {
   );
 }
 
+type InstFilter = "all" | "udesc" | "ufsc" | "ifsc" | "univille" | "pendentes";
+
 function EntidadesSubTab() {
   const { data: entities = [] } = useQuery(entitiesQuery);
   const { data: members = [] } = useQuery(membersQuery());
+  const { data: meetings = [] } = useQuery(generalMeetingsQuery);
+  const { data: attendances = [] } = useQuery(meetingAttendancesQuery());
+  const { data: staffVols = [] } = useQuery(staffVolunteersQuery());
+  const { data: trainingRegs = [] } = useQuery(trainingRegistrationsQuery());
+  const { data: workshops = [] } = useQuery(peerWorkshopsQuery());
+
   const [q, setQ] = useState("");
-  const [inst, setInst] = useState<"all" | "ufsc" | "udesc">("all");
+  const [inst, setInst] = useState<InstFilter>("all");
   const term = q.toLowerCase();
 
-  const matchesInst = (nome: string, descricao: string) => {
+  const getSemReqs = (entityId: string) =>
+    calculateSemesterRequirements({
+      entityId,
+      generalMeetings: meetings,
+      meetingAttendances: attendances,
+      staffVolunteers: staffVols,
+      trainingRegistrations: trainingRegs,
+      peerWorkshops: workshops,
+    });
+
+  const nonCompliantCount = entities.filter((e) => !getSemReqs(e.id).isCompliant).length;
+
+  const matchesInst = (entityId: string, nome: string, descricao: string) => {
     if (inst === "all") return true;
+    if (inst === "pendentes") return !getSemReqs(entityId).isCompliant;
     const text = (nome + " " + descricao).toLowerCase();
-    return inst === "ufsc" ? text.includes("ufsc") : text.includes("udesc");
+    return text.includes(inst);
   };
 
   const filtered = entities.filter(
     (e) =>
-      matchesInst(e.nome, e.descricao) &&
+      matchesInst(e.id, e.nome, e.descricao) &&
       (e.nome.toLowerCase().includes(term) ||
         e.descricao.toLowerCase().includes(term) ||
         members.some(
@@ -114,11 +142,16 @@ function EntidadesSubTab() {
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <Tabs value={inst} onValueChange={(v) => setInst(v as "all" | "ufsc" | "udesc")}>
-          <TabsList>
+        <Tabs value={inst} onValueChange={(v) => setInst(v as InstFilter)}>
+          <TabsList className="flex-wrap h-auto">
             <TabsTrigger value="all">Todas ({entities.length})</TabsTrigger>
-            <TabsTrigger value="ufsc">UFSC Joinville</TabsTrigger>
             <TabsTrigger value="udesc">UDESC Joinville</TabsTrigger>
+            <TabsTrigger value="ufsc">UFSC Joinville</TabsTrigger>
+            <TabsTrigger value="ifsc">IFSC Joinville</TabsTrigger>
+            <TabsTrigger value="univille">Univille</TabsTrigger>
+            <TabsTrigger value="pendentes" className="text-destructive font-semibold">
+              ! Exigências Pendentes ({nonCompliantCount})
+            </TabsTrigger>
           </TabsList>
         </Tabs>
         <Input
@@ -136,18 +169,40 @@ function EntidadesSubTab() {
       <Accordion type="multiple" className="space-y-3">
         {filtered.map((e) => {
           const ms = members.filter((m) => m.entity_id === e.id);
+          const sem = getSemReqs(e.id);
           return (
             <AccordionItem
               key={e.id}
               value={e.id}
-              className="rounded-xl border bg-card px-5 shadow-card"
+              className={
+                sem.isCompliant
+                  ? "rounded-xl border bg-card px-5 shadow-card"
+                  : "rounded-xl border-2 border-destructive/40 bg-card px-5 shadow-card"
+              }
             >
               <AccordionTrigger>
-                <div className="text-left">
-                  <div className="font-semibold">{e.nome}</div>
-                  <div className="mt-0.5 text-xs font-normal text-muted-foreground">
-                    {ms.length} {ms.length === 1 ? "membro" : "membros"} ·{" "}
-                    {e.descricao || "Sem descrição"}
+                <div className="flex flex-1 flex-wrap items-center justify-between gap-3 pr-3 text-left">
+                  <div>
+                    <div className="font-semibold flex flex-wrap items-center gap-2">
+                      <span>{e.nome}</span>
+                    </div>
+                    <div className="mt-0.5 text-xs font-normal text-muted-foreground">
+                      {ms.length} {ms.length === 1 ? "membro" : "membros"} ·{" "}
+                      {e.descricao || "Sem descrição"}
+                    </div>
+                  </div>
+                  <div className="shrink-0">
+                    {sem.isCompliant ? (
+                      <span className="inline-flex items-center gap-1 rounded-full bg-success/15 px-2.5 py-0.5 text-xs font-bold text-success">
+                        <CheckCircle2 className="h-3.5 w-3.5" /> {sem.fulfilledCount}/
+                        {sem.totalRequirements} exigências ({CURRENT_SEMESTER_LABEL})
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 rounded-full bg-destructive/15 px-2.5 py-0.5 text-xs font-bold text-destructive">
+                        <AlertTriangle className="h-3.5 w-3.5" /> ! {sem.fulfilledCount}/
+                        {sem.totalRequirements} exigências semestrais cumpridas
+                      </span>
+                    )}
                   </div>
                 </div>
               </AccordionTrigger>
@@ -157,6 +212,42 @@ function EntidadesSubTab() {
                     {e.descricao}
                   </p>
                 )}
+
+                {/* Resumo das exigências semestrais da entidade */}
+                <div
+                  className={
+                    sem.isCompliant
+                      ? "mb-4 rounded-xl border border-success/30 bg-success/5 p-3.5"
+                      : "mb-4 rounded-xl border border-destructive/35 bg-destructive/5 p-3.5"
+                  }
+                >
+                  <div className="text-xs font-bold text-foreground mb-2">
+                    Status de Permanência no Semestre {sem.semesterLabel} (renova todo semestre):
+                  </div>
+                  <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+                    {sem.items.map((item) => (
+                      <div
+                        key={item.key}
+                        className="rounded-lg border border-border bg-card p-2.5 text-xs"
+                      >
+                        <div className="font-semibold text-foreground">{item.shortTitle}</div>
+                        <div className="mt-0.5 text-[11px] text-muted-foreground">
+                          Realizado: <strong>{item.current}</strong> / {item.target}
+                        </div>
+                        <div
+                          className={
+                            item.fulfilled
+                              ? "mt-1 text-[11px] font-bold text-success"
+                              : "mt-1 text-[11px] font-bold text-destructive"
+                          }
+                        >
+                          {item.fulfilled ? "✓ Cumprida" : `• ${item.statusText}`}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
                 <Table>
                   <TableHeader>
                     <TableRow>

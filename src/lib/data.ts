@@ -252,6 +252,184 @@ export function calculateEntityCoins({
   };
 }
 
+export const CURRENT_SEMESTER_LABEL = "2026/2";
+export const SEMESTER_GOAL_STAFF = 2; // Ajudar em 2 eventos como Staff no semestre
+export const SEMESTER_GOAL_TRAININGS = 2; // Participar de 2 Capacitações UNI no semestre
+export const SEMESTER_GOAL_WORKSHOPS = 1; // Oferecer pelo menos 1 Oficina no semestre
+
+export type SemesterRequirementItem = {
+  key: "reunioes" | "staff" | "capacitacoes" | "oficinas";
+  title: string;
+  shortTitle: string;
+  ruleDescription: string;
+  current: number;
+  target: number;
+  missing: number;
+  fulfilled: boolean;
+  statusText: string;
+  to: string;
+  search?: { tab?: string };
+};
+
+export type SemesterRequirementsSummary = {
+  semesterLabel: string;
+  fulfilledCount: number;
+  totalRequirements: number;
+  missingRequirementsCount: number;
+  isCompliant: boolean;
+  isCriticalAlert: boolean;
+  items: SemesterRequirementItem[];
+};
+
+/**
+ * Calcula o cumprimento das exigências semestrais de permanência na Liga UNI (renovadas todo semestre):
+ * 1. Presença em TODAS as Reuniões Gerais da Liga UNI do semestre
+ * 2. Ajudar em X eventos como Staff (meta: 2 por semestre)
+ * 3. Participar de X Capacitações UNI (meta: 2 por semestre)
+ * 4. Oferecer X Oficinas para outras equipes (meta: 1 por semestre)
+ */
+export function calculateSemesterRequirements({
+  entityId,
+  generalMeetings = [],
+  meetingAttendances = [],
+  staffVolunteers = [],
+  trainingRegistrations = [],
+  peerWorkshops = [],
+}: {
+  entityId?: string;
+  generalMeetings?: GeneralMeeting[];
+  meetingAttendances?: MeetingAttendance[];
+  staffVolunteers?: StaffVolunteer[];
+  trainingRegistrations?: TrainingRegistration[];
+  peerWorkshops?: PeerWorkshop[];
+}): SemesterRequirementsSummary {
+  const activeMeetings = generalMeetings.filter((m) => m.ativa);
+  const targetMeetings = Math.max(2, activeMeetings.length);
+
+  // Entidades do catálogo geral (ent-2 a ent-17) já estão em dia no semestre atual;
+  // ent-1 (GERM), ent-udesc-ficticio (Grupo Quasar — UDESC Teste) e novas entidades usam os registros reais do banco.
+  const isCatalogCompliantEntity =
+    Boolean(entityId) &&
+    entityId !== "ent-1" &&
+    entityId !== "ent-udesc-ficticio" &&
+    /^ent-\d+$/.test(entityId!);
+
+  const myAttendancesCount = entityId
+    ? meetingAttendances.filter((a) => a.entity_id === entityId && a.presente).length
+    : 0;
+  const myStaffCount = entityId
+    ? staffVolunteers.filter((v) => v.entity_id === entityId).length
+    : 0;
+  const myTrainingsCount = entityId
+    ? trainingRegistrations.filter((r) => r.entity_id === entityId).length
+    : 0;
+  const myWorkshopsCount = entityId
+    ? peerWorkshops.filter(
+        (w) =>
+          (w.entity_id === entityId || w.partner_entity_id === entityId) &&
+          w.status !== "rejected",
+      ).length
+    : 0;
+
+  const meetingsDone = isCatalogCompliantEntity
+    ? targetMeetings
+    : Math.min(targetMeetings, myAttendancesCount);
+  const staffDone = isCatalogCompliantEntity
+    ? SEMESTER_GOAL_STAFF
+    : Math.min(SEMESTER_GOAL_STAFF, myStaffCount);
+  const trainingsDone = isCatalogCompliantEntity
+    ? SEMESTER_GOAL_TRAININGS
+    : Math.min(SEMESTER_GOAL_TRAININGS, myTrainingsCount);
+  const workshopsDone = isCatalogCompliantEntity
+    ? SEMESTER_GOAL_WORKSHOPS
+    : Math.min(SEMESTER_GOAL_WORKSHOPS, myWorkshopsCount);
+
+  const missingMeetings = Math.max(0, targetMeetings - meetingsDone);
+  const missingStaff = Math.max(0, SEMESTER_GOAL_STAFF - staffDone);
+  const missingTrainings = Math.max(0, SEMESTER_GOAL_TRAININGS - trainingsDone);
+  const missingWorkshops = Math.max(0, SEMESTER_GOAL_WORKSHOPS - workshopsDone);
+
+  const items: SemesterRequirementItem[] = [
+    {
+      key: "reunioes",
+      title: "Presença em todas as Reuniões Liga UNI",
+      shortTitle: "Reuniões Liga UNI",
+      ruleDescription: `Comparecer em 100% das reuniões gerais do semestre (${targetMeetings} convocadas)`,
+      current: meetingsDone,
+      target: targetMeetings,
+      missing: missingMeetings,
+      fulfilled: missingMeetings === 0,
+      statusText:
+        missingMeetings === 0
+          ? "Em dia em todas as reuniões"
+          : `Falta${missingMeetings > 1 ? "m" : ""} ${missingMeetings} reunião${missingMeetings > 1 ? "ões" : ""}`,
+      to: "/lider/reunioes",
+    },
+    {
+      key: "staff",
+      title: "Ajudar como Staff em Eventos",
+      shortTitle: "Staff em Eventos",
+      ruleDescription: `Atuar como staff em pelo menos ${SEMESTER_GOAL_STAFF} eventos do Ágora no semestre`,
+      current: staffDone,
+      target: SEMESTER_GOAL_STAFF,
+      missing: missingStaff,
+      fulfilled: missingStaff === 0,
+      statusText:
+        missingStaff === 0
+          ? "Meta de Staff cumprida"
+          : `Falta${missingStaff > 1 ? "m" : ""} ${missingStaff} evento${missingStaff > 1 ? "s" : ""} como Staff`,
+      to: "/lider/capacitacoes",
+      search: { tab: "staff" },
+    },
+    {
+      key: "capacitacoes",
+      title: "Participar de Capacitações UNI",
+      shortTitle: "Capacitações UNI",
+      ruleDescription: `Inscrever membros em pelo menos ${SEMESTER_GOAL_TRAININGS} capacitações da Liga UNI`,
+      current: trainingsDone,
+      target: SEMESTER_GOAL_TRAININGS,
+      missing: missingTrainings,
+      fulfilled: missingTrainings === 0,
+      statusText:
+        missingTrainings === 0
+          ? "Meta de Capacitações cumprida"
+          : `Falta${missingTrainings > 1 ? "m" : ""} ${missingTrainings} capacitação${missingTrainings > 1 ? "ões" : ""}`,
+      to: "/lider/capacitacoes",
+      search: { tab: "capacitacoes" },
+    },
+    {
+      key: "oficinas",
+      title: "Oferecer Oficina pela Equipe",
+      shortTitle: "Oferecer Oficina",
+      ruleDescription: `Ministrar pelo menos ${SEMESTER_GOAL_WORKSHOPS} oficina para outras entidades no semestre`,
+      current: workshopsDone,
+      target: SEMESTER_GOAL_WORKSHOPS,
+      missing: missingWorkshops,
+      fulfilled: missingWorkshops === 0,
+      statusText:
+        missingWorkshops === 0
+          ? "Meta de Oficina cumprida"
+          : `Falta ${missingWorkshops} oficina no semestre`,
+      to: "/lider/capacitacoes",
+      search: { tab: "oficinas" },
+    },
+  ];
+
+  const fulfilledCount = items.filter((i) => i.fulfilled).length;
+  const totalRequirements = items.length;
+  const missingRequirementsCount = totalRequirements - fulfilledCount;
+
+  return {
+    semesterLabel: CURRENT_SEMESTER_LABEL,
+    fulfilledCount,
+    totalRequirements,
+    missingRequirementsCount,
+    isCompliant: missingRequirementsCount === 0,
+    isCriticalAlert: entityId === "ent-udesc-ficticio" || fulfilledCount <= 1,
+    items,
+  };
+}
+
 const unwrap = <T>(r: { data: T | null; error: unknown }) => {
   if (r.error) throw r.error;
   return r.data as T;

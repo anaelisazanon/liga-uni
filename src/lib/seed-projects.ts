@@ -9,15 +9,18 @@ export type SeedProject = {
 };
 
 export const SEED_PROJECTS: SeedProject[] = [
-  // 1. GERM (UDESC Joinville) - Líder principal do botão de teste
+  // ===========================================================================
+  // UDESC Joinville
+  // ===========================================================================
+  // 1. GERM (UDESC Joinville) - Líder principal do botão de demonstração
   {
     id: "ent-1",
     leaderId: "user-leader-1",
     leaderNome: "Líder do GERM (UDESC)",
     leaderEmail: "lider.teste@example.com",
-    nome: "GERM — Grupo de Estudos em Robótica Móvel (UDESC Joinville)",
+    nome: "GERM — Grupo Estudantil de Robótica Móvel (UDESC Joinville)",
     descricao:
-      "O GERM é um grupo de robótica da Universidade do Estado de Santa Catarina - UDESC que tem dois grandes objetivos: contribuir para a inclusão social de diversos grupos da sociedade por intermédio de atividades relacionadas com a robótica móvel; e auxiliar na melhoria da formação dos estudantes de graduação da UDESC-Joinville. O Grupo é formado por discentes de vários cursos do Centro de Ciências Tecnológicas da UDESC e conta com a participação de professores de diversos departamentos deste centro. Nossa missão: Difundir o conhecimento em robótica na sociedade, incentivar os acadêmicos a desenvolver conhecimentos na área e integrar-se com a comunidade para fomentar o interesse em ciência e tecnologia. Contato: comunicacao.cct@udesc.br",
+      "Grupo de extensão (UDESC Joinville) · Grupo Estudantil de Robótica Móvel. Reúne bolsistas e voluntários em atividades de ensino, extensão e desenvolvimento tecnológico em robótica móvel. Também promove inclusão social por meio da robótica.",
     members: [
       { id: "mem-1", nome: "Carlos Eduardo", email: "carlos@edu.udesc.br", curso: "Engenharia Elétrica" },
       { id: "mem-2", nome: "Beatriz Souza", email: "beatriz@edu.udesc.br", curso: "Engenharia Mecânica" },
@@ -25,488 +28,259 @@ export const SEED_PROJECTS: SeedProject[] = [
       { id: "mem-4", nome: "Juliana Costa", email: "juliana@edu.udesc.br", curso: "Engenharia de Produção e Sistemas" },
     ],
   },
-  // 2. Fórmula CEM (UFSC Joinville)
+  // 2. AAACCT (UDESC Joinville)
   {
     id: "ent-2",
     leaderId: "user-leader-2",
-    leaderNome: "Líder da Fórmula CEM (UFSC)",
-    leaderEmail: "lider.formulacem@example.com",
-    nome: "Fórmula CEM (UFSC Joinville)",
+    leaderNome: "Líder da AAACCT (UDESC)",
+    leaderEmail: "aaacct@edu.udesc.br",
+    nome: "AAACCT — Associação Atlética Acadêmica do CCT (UDESC Joinville)",
     descricao:
-      "A equipe Fórmula CEM tem como principal objetivo desenvolver modelos de veículos do tipo Fórmula-SAE com motor a combustão (IC) e elétrico (EV), para participar dos eventos de competição estudantil que são promovidos pela Associação dos Engenheiros da Mobilidade (SAE) do Brasil. Em 2019, obteve a primeira colocação no quesito “eficiência – categoria combustão” na competição nacional. E em 2021, o carro elétrico ficou na terceira posição da mesma competição. Instagram: @formulacem",
+      "Atlética (UDESC Joinville) · Associação Atlética Acadêmica do Centro de Ciências Tecnológicas (CCT). Representa a UDESC Joinville em competições esportivas. Criada em 2005 para promover esporte e integração entre estudantes, organiza eventos esportivos, festas e atividades de integração.",
     members: [
-      { id: "mem-5", nome: "Lucas Ferreira", email: "lucas.ferreira@grad.ufsc.br", curso: "Engenharia Automotiva" },
-      { id: "mem-6", nome: "Mariana Alves", email: "mariana.alves@grad.ufsc.br", curso: "Engenharia Mecatrônica" },
-      { id: "mem-7", nome: "Gabriel Rocha", email: "gabriel.rocha@grad.ufsc.br", curso: "Engenharia Aeroespacial" },
-      { id: "mem-8", nome: "Fernanda Lima", email: "fernanda.lima@grad.ufsc.br", curso: "Engenharia Naval" },
+      { id: "mem-5", nome: "César Augusto", email: "cesar.atletica@edu.udesc.br", curso: "Engenharia Mecânica" },
+      { id: "mem-6", nome: "Milena Soares", email: "milena.atletica@edu.udesc.br", curso: "Engenharia de Produção e Sistemas" },
+      { id: "mem-7", nome: "Lucas Tavares", email: "lucas.atletica@edu.udesc.br", curso: "Engenharia Elétrica" },
     ],
   },
-  // 3. Barco Solar Babitonga (UFSC Joinville)
+  // 3. Grupo Fictício da UDESC Joinville (Para teste de não cumprimento das exigências semestrais)
+  {
+    id: "ent-udesc-ficticio",
+    leaderId: "user-leader-pendente",
+    leaderNome: "Líder do Grupo Quasar (UDESC — Fictício)",
+    leaderEmail: "lider.pendente@example.com",
+    nome: "Grupo Quasar de Sistemas Autônomos (UDESC Joinville — Fictício)",
+    descricao:
+      "Grupo fictício da UDESC Joinville criado para demonstração e teste de alerta de equipe que ainda não cumpriu as exigências semestrais de permanência na Liga UNI.",
+    members: [
+      { id: "mem-8", nome: "Marcos Vinícius", email: "marcos.quasar@edu.udesc.br", curso: "Engenharia Elétrica" },
+      { id: "mem-9", nome: "Camila Rocha", email: "camila.quasar@edu.udesc.br", curso: "Ciência da Computação" },
+    ],
+  },
+
+  // ===========================================================================
+  // IFSC Joinville
+  // ===========================================================================
+  // 4. STELLA (IFSC Joinville)
   {
     id: "ent-3",
     leaderId: "user-leader-3",
-    leaderNome: "Líder Barco Solar Babitonga",
-    leaderEmail: "babitonga@joinville.ufsc.br",
-    nome: "Barco Solar Babitonga (UFSC Joinville)",
+    leaderNome: "Líder do Projeto STELLA (IFSC)",
+    leaderEmail: "stella@ifsc.edu.br",
+    nome: "STELLA (IFSC Joinville)",
     descricao:
-      "Equipe de competição de embarcações movidas exclusivamente por energia solar fotovoltaica. Área: Engenharia e Energia Solar. Contatos: Instagram @equipebabitonga · babitonga.webnode.com",
+      "Projeto de extensão (IFSC Joinville) · Promove atividades interativas com alunas do ensino médio para incentivar a participação feminina em STEM (Ciência, Tecnologia, Engenharia e Matemática). Coordenado pela professora Joice.",
     members: [
-      { id: "mem-9", nome: "Pedro Henrique", email: "pedro.babitonga@grad.ufsc.br", curso: "Engenharia Naval" },
-      { id: "mem-10", nome: "Camila Martins", email: "camila.babitonga@grad.ufsc.br", curso: "Engenharia Mecatrônica" },
+      { id: "mem-10", nome: "Mariana Alves", email: "mariana.stella@aluno.ifsc.edu.br", curso: "Engenharia Elétrica" },
+      { id: "mem-11", nome: "Fernanda Lima", email: "fernanda.stella@aluno.ifsc.edu.br", curso: "Engenharia Mecânica" },
     ],
   },
-  // 4. Botcem (UFSC Joinville)
+
+  // ===========================================================================
+  // Univille
+  // ===========================================================================
+  // 5. LANENF (Univille)
   {
     id: "ent-4",
     leaderId: "user-leader-4",
-    leaderNome: "Líder Botcem",
-    leaderEmail: "botcem@joinville.ufsc.br",
-    nome: "Botcem (UFSC Joinville)",
+    leaderNome: "Líder da LANENF (Univille)",
+    leaderEmail: "lanenf@univille.br",
+    nome: "LANENF — Liga Acadêmica de Enfermagem de Neurologia (Univille)",
     descricao:
-      "Equipe de robótica (mecânica, eletrônica e programação), criada em 2011 na UFSC Joinville. Área: Ciência e Tecnologia, Mecatrônica e Naval. Contatos: Instagram @botcem · https://botcem.ufsc.br",
+      "Liga acadêmica (Univille) · Liga Acadêmica de Enfermagem de Neurologia, com atuação em ensino, pesquisa e extensão na área de neurologia e reabilitação pós-AVC.",
     members: [
-      { id: "mem-11", nome: "Thiago Ribeiro", email: "thiago.botcem@grad.ufsc.br", curso: "Engenharia Mecatrônica" },
-      { id: "mem-12", nome: "Larissa Gomes", email: "larissa.botcem@grad.ufsc.br", curso: "Bacharelado em Ciência e Tecnologia" },
+      { id: "mem-12", nome: "Larissa Gomes", email: "larissa.lanenf@univille.br", curso: "Enfermagem" },
+      { id: "mem-13", nome: "Bruna Cardoso", email: "bruna.lanenf@univille.br", curso: "Enfermagem" },
     ],
   },
-  // 5. Bateria Nota CEM (UFSC Joinville)
+
+  // ===========================================================================
+  // UFSC Joinville — Equipes de Competição
+  // ===========================================================================
+  // 6. Babitonga (UFSC Joinville)
   {
     id: "ent-5",
     leaderId: "user-leader-5",
-    leaderNome: "Líder Bateria Nota CEM",
-    leaderEmail: "notacem@joinville.ufsc.br",
-    nome: "Bateria Nota CEM (UFSC Joinville)",
+    leaderNome: "Líder da Babitonga (UFSC)",
+    leaderEmail: "babitonga@joinville.ufsc.br",
+    nome: "Babitonga (UFSC Joinville)",
     descricao:
-      "Bateria universitária musical em formação reduzida, apresentando diversos ritmos em eventos e competições. Área: Artes e Música. Contato: Instagram @baterianotacem",
+      "Equipe de competição (UFSC Joinville) · Desenvolve barcos movidos exclusivamente por energia solar fotovoltaica. Participa do Desafio Solar Brasil desde 2010.",
     members: [
-      { id: "mem-13", nome: "Matheus Vieira", email: "matheus.notacem@grad.ufsc.br", curso: "Engenharia de Transportes e Logística" },
-      { id: "mem-14", nome: "Bruna Cardoso", email: "bruna.notacem@grad.ufsc.br", curso: "Engenharia Civil de Infraestrutura" },
+      { id: "mem-14", nome: "Pedro Henrique", email: "pedro.babitonga@grad.ufsc.br", curso: "Engenharia Naval" },
+      { id: "mem-15", nome: "Camila Martins", email: "camila.babitonga@grad.ufsc.br", curso: "Engenharia Mecatrônica" },
     ],
   },
-  // 6. Cheerleaders Camaleão (UFSC Joinville)
+  // 7. BAJA UFSC (UFSC Joinville)
   {
     id: "ent-6",
     leaderId: "user-leader-6",
-    leaderNome: "Líder Cheerleaders Camaleão",
-    leaderEmail: "camaleao@joinville.ufsc.br",
-    nome: "Cheerleaders Camaleão (UFSC Joinville)",
+    leaderNome: "Líder da BAJA UFSC",
+    leaderEmail: "baja@joinville.ufsc.br",
+    nome: "BAJA UFSC (UFSC Joinville)",
     descricao:
-      "Equipe de cheerleading universitário com participação em campeonatos internos e externos. Área: Esportes. Contato: Instagram @cheerleaders_camaleao",
+      "Equipe de competição (UFSC Joinville) · Projeta e constrói veículos off-road para as competições regionais e nacionais da SAE Brasil.",
     members: [
-      { id: "mem-15", nome: "Amanda Teixeira", email: "amanda.camaleao@grad.ufsc.br", curso: "Engenharia Aeroespacial" },
-      { id: "mem-16", nome: "Diego Santos", email: "diego.camaleao@grad.ufsc.br", curso: "Engenharia Automotiva" },
+      { id: "mem-16", nome: "Gustavo Almeida", email: "gustavo.baja@grad.ufsc.br", curso: "Engenharia Automotiva" },
+      { id: "mem-17", nome: "Natália Barros", email: "natalia.baja@grad.ufsc.br", curso: "Engenharia Mecatrônica" },
     ],
   },
-  // 7. CTJ Baja UFSC
+  // 8. Draconis (UFSC Joinville)
   {
     id: "ent-7",
     leaderId: "user-leader-7",
-    leaderNome: "Líder CTJ Baja UFSC",
-    leaderEmail: "ctjbaja@joinville.ufsc.br",
-    nome: "CTJ Baja UFSC (UFSC Joinville)",
+    leaderNome: "Líder da Draconis (UFSC)",
+    leaderEmail: "draconis@joinville.ufsc.br",
+    nome: "Draconis (UFSC Joinville)",
     descricao:
-      "Desenvolvimento de veículos off-road para competições regionais e nacionais Baja SAE. Área: Engenharia Mecânica e Automotiva. Contatos: Instagram @ctjbajaufsc · https://sites.google.com/view/ctjbajaufsc",
+      "Equipe de competição (UFSC Joinville) · Compete e pesquisa projetos mecânicos e eletrônicos para drones autônomos.",
     members: [
-      { id: "mem-17", nome: "Gustavo Almeida", email: "gustavo.baja@grad.ufsc.br", curso: "Engenharia Automotiva" },
-      { id: "mem-18", nome: "Natália Barros", email: "natalia.baja@grad.ufsc.br", curso: "Engenharia Mecatrônica" },
+      { id: "mem-18", nome: "Leonardo Pires", email: "leonardo.draconis@grad.ufsc.br", curso: "Engenharia Aeroespacial" },
+      { id: "mem-19", nome: "Isabela Moraes", email: "isabela.draconis@grad.ufsc.br", curso: "Engenharia Mecatrônica" },
     ],
   },
-  // 8. CEMCODES (UFSC Joinville)
+  // 9. DUNA (UFSC Joinville)
   {
     id: "ent-8",
     leaderId: "user-leader-8",
-    leaderNome: "Líder CEMCODES",
-    leaderEmail: "cemcodes@joinville.ufsc.br",
-    nome: "CEMCODES (UFSC Joinville)",
+    leaderNome: "Líder do DUNA (UFSC)",
+    leaderEmail: "duna@joinville.ufsc.br",
+    nome: "DUNA (UFSC Joinville)",
     descricao:
-      "Grupo de programação competitiva e participação em maratonas de programação. Área: Ciência da Computação e Algoritmos. Contatos: Instagram @cemcodes · https://cemcodes.joinville.ufsc.br/",
+      "Equipe de competição (UFSC Joinville) · Desafio Universitário de Nautidesign, criado na UFSC Joinville em 2013. As equipes constroem modelos funcionais de embarcações em escala reduzida e os submetem a provas.",
     members: [
-      { id: "mem-19", nome: "Henrique Castro", email: "henrique.cemcodes@grad.ufsc.br", curso: "Bacharelado em Ciência e Tecnologia" },
-      { id: "mem-20", nome: "Sofia Oliveira", email: "sofia.cemcodes@grad.ufsc.br", curso: "Engenharia Mecatrônica" },
+      { id: "mem-20", nome: "Vitor Hugo", email: "vitor.duna@grad.ufsc.br", curso: "Engenharia Naval" },
+      { id: "mem-21", nome: "Helena Duarte", email: "helena.duna@grad.ufsc.br", curso: "Engenharia Naval" },
     ],
   },
-  // 9. DRACONIS (UFSC Joinville)
+  // 10. Eficem (UFSC Joinville)
   {
     id: "ent-9",
     leaderId: "user-leader-9",
-    leaderNome: "Líder DRACONIS",
-    leaderEmail: "draconis@joinville.ufsc.br",
-    nome: "DRACONIS — Drone Design (UFSC Joinville)",
-    descricao:
-      "Equipe de Drone Design voltada ao projeto e desenvolvimento de drones autônomos. Área: Eletrônica e Mecânica. Contato: Instagram @draconisdrones",
-    members: [
-      { id: "mem-21", nome: "Leonardo Pires", email: "leonardo.draconis@grad.ufsc.br", curso: "Engenharia Aeroespacial" },
-      { id: "mem-22", nome: "Isabela Moraes", email: "isabela.draconis@grad.ufsc.br", curso: "Engenharia Mecatrônica" },
-    ],
-  },
-  // 10. DUNA (UFSC Joinville)
-  {
-    id: "ent-10",
-    leaderId: "user-leader-10",
-    leaderNome: "Líder DUNA",
-    leaderEmail: "duna@joinville.ufsc.br",
-    nome: "DUNA — Desafio Universitário de Nautidesign (UFSC Joinville)",
-    descricao:
-      "Organização do Desafio Universitário de Nautidesign, criado na UFSC Joinville em 2013. Área: Engenharia Naval. Contatos: Instagram @oficialduna · www.oficialduna.com",
-    members: [
-      { id: "mem-23", nome: "Vitor Hugo", email: "vitor.duna@grad.ufsc.br", curso: "Engenharia Naval" },
-      { id: "mem-24", nome: "Helena Duarte", email: "helena.duna@grad.ufsc.br", curso: "Engenharia Naval" },
-    ],
-  },
-  // 11. Eficem (UFSC Joinville)
-  {
-    id: "ent-11",
-    leaderId: "user-leader-11",
-    leaderNome: "Líder Eficem",
+    leaderNome: "Líder da Eficem (UFSC)",
     leaderEmail: "eficem@joinville.ufsc.br",
     nome: "Eficem (UFSC Joinville)",
     descricao:
-      "Desenvolvimento de protótipos automobilísticos com foco em eficiência energética. Área: Engenharia Automotiva. Contatos: Instagram @eficemufsc · www.eficem.ufsc.br",
+      "Equipe de competição (UFSC Joinville) · Equipe de eficiência energética. Desenvolve protótipos automobilísticos e disputa principalmente a Shell Eco-marathon.",
     members: [
-      { id: "mem-25", nome: "Rodrigo Nunes", email: "rodrigo.eficem@grad.ufsc.br", curso: "Engenharia Automotiva" },
-      { id: "mem-26", nome: "Clara Machado", email: "clara.eficem@grad.ufsc.br", curso: "Engenharia Mecatrônica" },
+      { id: "mem-22", nome: "Rodrigo Nunes", email: "rodrigo.eficem@grad.ufsc.br", curso: "Engenharia Automotiva" },
+      { id: "mem-23", nome: "Clara Machado", email: "clara.eficem@grad.ufsc.br", curso: "Engenharia Mecatrônica" },
     ],
   },
-  // 12. Holandês Voador (UFSC Joinville)
+  // 11. Kosmos Rocketry (UFSC Joinville)
   {
-    id: "ent-12",
-    leaderId: "user-leader-12",
-    leaderNome: "Líder Holandês Voador",
-    leaderEmail: "holandesvoador@joinville.ufsc.br",
-    nome: "Holandês Voador (UFSC Joinville)",
-    descricao:
-      "Equipe de nautimodelismo, bicampeã do DUNA (2017 e 2018). Área: Engenharia Naval. Contatos: Instagram @hvnauti_ · www.hvduna.wixsite.com/website",
-    members: [
-      { id: "mem-27", nome: "Arthur Azevedo", email: "arthur.hv@grad.ufsc.br", curso: "Engenharia Naval" },
-      { id: "mem-28", nome: "Lívia Freitas", email: "livia.hv@grad.ufsc.br", curso: "Engenharia Naval" },
-    ],
-  },
-  // 13. Hydra (UFSC Joinville)
-  {
-    id: "ent-13",
-    leaderId: "user-leader-13",
-    leaderNome: "Líder Hydra",
-    leaderEmail: "hydra@joinville.ufsc.br",
-    nome: "Hydra Nautidesign (UFSC Joinville)",
-    descricao:
-      "Equipe de nautimodelismo criada em 2017 para o desafio DUNA. Área: Engenharia Naval. Contato: Instagram @hydranautidesign",
-    members: [
-      { id: "mem-29", nome: "Caio Monteiro", email: "caio.hydra@grad.ufsc.br", curso: "Engenharia Naval" },
-      { id: "mem-30", nome: "Marina Rezende", email: "marina.hydra@grad.ufsc.br", curso: "Engenharia Naval" },
-    ],
-  },
-  // 14. InfraTEC (UFSC Joinville)
-  {
-    id: "ent-14",
-    leaderId: "user-leader-14",
-    leaderNome: "Líder InfraTEC",
-    leaderEmail: "infratec@joinville.ufsc.br",
-    nome: "InfraTEC (UFSC Joinville)",
-    descricao:
-      "Desenvolvimento de protótipos e soluções em diversas áreas da infraestrutura. Área: Engenharia Civil de Infraestrutura. Contatos: Instagram @infratec · www.infratec.ufsc.br",
-    members: [
-      { id: "mem-31", nome: "Daniel Borges", email: "daniel.infratec@grad.ufsc.br", curso: "Engenharia Civil de Infraestrutura" },
-      { id: "mem-32", nome: "Paula Guimarães", email: "paula.infratec@grad.ufsc.br", curso: "Engenharia Civil de Infraestrutura" },
-    ],
-  },
-  // 15. Kosmos Rocketry (UFSC Joinville)
-  {
-    id: "ent-15",
-    leaderId: "user-leader-15",
-    leaderNome: "Líder Kosmos Rocketry",
+    id: "ent-10",
+    leaderId: "user-leader-10",
+    leaderNome: "Líder da Kosmos Rocketry (UFSC)",
     leaderEmail: "kosmos@joinville.ufsc.br",
     nome: "Kosmos Rocketry (UFSC Joinville)",
     descricao:
-      "Equipe de projeto e lançamento de foguetes de sondagem experimental. Área: Engenharia Aeroespacial / Aeronáutica. Contato: Instagram @kosmosrocketry",
+      "Equipe de competição (UFSC Joinville) · Constrói foguetes de sondagem experimentais. Disputa a IREC (EUA) e a LASC (Brasil).",
     members: [
-      { id: "mem-33", nome: "Felipe Siqueira", email: "felipe.kosmos@grad.ufsc.br", curso: "Engenharia Aeroespacial" },
-      { id: "mem-34", nome: "Carolina Dias", email: "carolina.kosmos@grad.ufsc.br", curso: "Engenharia Aeroespacial" },
+      { id: "mem-24", nome: "Felipe Siqueira", email: "felipe.kosmos@grad.ufsc.br", curso: "Engenharia Aeroespacial" },
+      { id: "mem-25", nome: "Carolina Dias", email: "carolina.kosmos@grad.ufsc.br", curso: "Engenharia Aeroespacial" },
     ],
   },
-  // 16. Nisus Aerodesign (UFSC Joinville)
+  // 12. TERRA (UFSC Joinville)
   {
-    id: "ent-16",
-    leaderId: "user-leader-16",
-    leaderNome: "Líder Nisus Aerodesign",
-    leaderEmail: "nisus@joinville.ufsc.br",
-    nome: "Nisus Aerodesign (UFSC Joinville)",
-    descricao:
-      "Desenvolvimento de aeronaves rádio controladas para a competição SAE Brasil AeroDesign. Área: Engenharia Aeroespacial / Aeronáutica. Contatos: Instagram @equipe_nisus · www.nisus.joinville.ufsc.br",
-    members: [
-      { id: "mem-35", nome: "André Ramos", email: "andre.nisus@grad.ufsc.br", curso: "Engenharia Aeroespacial" },
-      { id: "mem-36", nome: "Letícia Prado", email: "leticia.nisus@grad.ufsc.br", curso: "Engenharia Aeroespacial" },
-    ],
-  },
-  // 17. Seven Seas Nautidesign (UFSC Joinville)
-  {
-    id: "ent-17",
-    leaderId: "user-leader-17",
-    leaderNome: "Líder Seven Seas",
-    leaderEmail: "sevenseas@joinville.ufsc.br",
-    nome: "Seven Seas Nautidesign (UFSC Joinville)",
-    descricao:
-      "Projeto de rebocador em escala reduzida para o DUNA, fundada em 2019. Área: Engenharia Naval. Contatos: Instagram @sevenseasnautidesign · https://sevenseasufsc.wixsite.com/sevenseasnautidesign",
-    members: [
-      { id: "mem-37", nome: "Bruno Cavalcanti", email: "bruno.sevenseas@grad.ufsc.br", curso: "Engenharia Naval" },
-      { id: "mem-38", nome: "Aline Fonseca", email: "aline.sevenseas@grad.ufsc.br", curso: "Engenharia Naval" },
-    ],
-  },
-  // 18. Terra (UFSC Joinville)
-  {
-    id: "ent-18",
-    leaderId: "user-leader-18",
-    leaderNome: "Líder Equipe Terra",
+    id: "ent-11",
+    leaderId: "user-leader-11",
+    leaderNome: "Líder da TERRA (UFSC)",
     leaderEmail: "terra@joinville.ufsc.br",
-    nome: "Terra — Veículo Submarino Autônomo (UFSC Joinville)",
+    nome: "TERRA (UFSC Joinville)",
     descricao:
-      "Desenvolvimento de veículo submarino autônomo (AUV). Área: Engenharia Naval e Eletrônica. Contatos: Instagram @terracompetition · www.terra.joinville.ufsc.br",
+      "Equipe de competição (UFSC Joinville) · Pesquisa e desenvolve um veículo submarino autônomo (AUV) que coleta dados e amostras.",
     members: [
-      { id: "mem-39", nome: "Murilo Santana", email: "murilo.terra@grad.ufsc.br", curso: "Engenharia Naval" },
-      { id: "mem-40", nome: "Bianca Lopes", email: "bianca.terra@grad.ufsc.br", curso: "Engenharia Mecatrônica" },
+      { id: "mem-26", nome: "Murilo Santana", email: "murilo.terra@grad.ufsc.br", curso: "Engenharia Naval" },
+      { id: "mem-27", nome: "Bianca Lopes", email: "bianca.terra@grad.ufsc.br", curso: "Engenharia Mecatrônica" },
     ],
   },
-  // 19. PantH₂era E-Racing (UFSC Joinville)
+  // 13. PantH₂era E-Racing (UFSC Joinville)
   {
-    id: "ent-19",
-    leaderId: "user-leader-19",
-    leaderNome: "Líder PantH₂era E-Racing",
+    id: "ent-12",
+    leaderId: "user-leader-12",
+    leaderNome: "Líder da PantH₂era E-Racing (UFSC)",
     leaderEmail: "panthera@joinville.ufsc.br",
     nome: "PantH₂era E-Racing (UFSC Joinville)",
     descricao:
-      "Equipe de Fórmula SAE híbrido com sistema a hidrogênio. Área: Engenharia Automotiva e Energia. Contato: Instagram @panthera.ufsc",
+      "Equipe de competição (UFSC Joinville) · Criada em 2026. Constrói carros Fórmula-SAE híbridos, com trem de força elétrico e um sistema de hidrogênio que recarrega a bateria.",
     members: [
-      { id: "mem-41", nome: "Otávio Medeiros", email: "otavio.panthera@grad.ufsc.br", curso: "Engenharia Automotiva" },
-      { id: "mem-42", nome: "Victória Cunha", email: "victoria.panthera@grad.ufsc.br", curso: "Engenharia Ferroviária e Metroviária" },
+      { id: "mem-28", nome: "Otávio Medeiros", email: "otavio.panthera@grad.ufsc.br", curso: "Engenharia Automotiva" },
+      { id: "mem-29", nome: "Victória Cunha", email: "victoria.panthera@grad.ufsc.br", curso: "Engenharia Ferroviária e Metroviária" },
     ],
   },
-  // 20. Albatroz Aerodesign (UDESC Joinville)
+
+  // ===========================================================================
+  // UFSC Joinville — Outras Entidades
+  // ===========================================================================
+  // 14. Bateria Nota Cem (UFSC Joinville)
   {
-    id: "ent-20",
-    leaderId: "user-leader-20",
-    leaderNome: "Líder Albatroz Aerodesign",
-    leaderEmail: "albatroz@edu.udesc.br",
-    nome: "Albatroz Aerodesign (UDESC Joinville)",
+    id: "ent-13",
+    leaderId: "user-leader-13",
+    leaderNome: "Líder da Bateria Nota Cem (UFSC)",
+    leaderEmail: "notacem@joinville.ufsc.br",
+    nome: "Bateria Nota Cem (UFSC Joinville)",
     descricao:
-      "Aeronaves rádio controladas em escala reduzida para o SAE Brasil AeroDesign. Existe desde 2001 no CCT/UDESC e é aberta a estudantes de qualquer curso. Contato: Instagram @albatrozaerodesign",
+      "Bateria universitária (UFSC Joinville) · Formação reduzida nos moldes de uma bateria de escola de samba. Participa de competições entre baterias.",
     members: [
-      { id: "mem-43", nome: "Guilherme Tavares", email: "guilherme.albatroz@edu.udesc.br", curso: "Engenharia Mecânica" },
-      { id: "mem-44", nome: "Luana Pacheco", email: "luana.albatroz@edu.udesc.br", curso: "Engenharia Elétrica" },
+      { id: "mem-30", nome: "Matheus Vieira", email: "matheus.notacem@grad.ufsc.br", curso: "Engenharia de Transportes e Logística" },
+      { id: "mem-31", nome: "Aline Fonseca", email: "aline.notacem@grad.ufsc.br", curso: "Engenharia Civil de Infraestrutura" },
     ],
   },
-  // 21. Baja UDESC (Velociraptor)
+  // 15. ETECH (UFSC Joinville)
   {
-    id: "ent-21",
-    leaderId: "user-leader-21",
-    leaderNome: "Líder Baja UDESC",
-    leaderEmail: "bajaudesc@gmail.com",
-    nome: "Baja UDESC — Velociraptor (UDESC Joinville)",
+    id: "ent-14",
+    leaderId: "user-leader-14",
+    leaderNome: "Líder da ETECH (UFSC)",
+    leaderEmail: "etech@joinville.ufsc.br",
+    nome: "ETECH (UFSC Joinville)",
     descricao:
-      "Desenvolvimento de veículo off-road para a competição Baja SAE Brasil por estudantes de Engenharia Mecânica e Elétrica da UDESC Joinville. Contato: bajaudesc@gmail.com",
+      "Empresa júnior (UFSC Joinville) · Empresa júnior de Engenharia Mecatrônica. Presta serviços nas áreas mecatrônica e tecnológica.",
     members: [
-      { id: "mem-45", nome: "Renan Coutinho", email: "renan.baja@edu.udesc.br", curso: "Engenharia Mecânica" },
-      { id: "mem-46", nome: "Patrícia Sales", email: "patricia.baja@edu.udesc.br", curso: "Engenharia Elétrica" },
+      { id: "mem-32", nome: "Thiago Ribeiro", email: "thiago.etech@grad.ufsc.br", curso: "Engenharia Mecatrônica" },
+      { id: "mem-33", nome: "Sofia Oliveira", email: "sofia.etech@grad.ufsc.br", curso: "Engenharia Mecatrônica" },
     ],
   },
-  // 22. E-Force Fórmula SAE (UDESC Joinville)
+  // 16. GAPE TL (UFSC Joinville)
   {
-    id: "ent-22",
-    leaderId: "user-leader-22",
-    leaderNome: "Líder E-Force Fórmula SAE",
-    leaderEmail: "admeforce@gmail.com",
-    nome: "E-Force Fórmula SAE (UDESC Joinville)",
+    id: "ent-15",
+    leaderId: "user-leader-15",
+    leaderNome: "Líder do GAPE TL (UFSC)",
+    leaderEmail: "gapetl@joinville.ufsc.br",
+    nome: "GAPE TL (UFSC Joinville)",
     descricao:
-      "Desenvolvimento de carros Fórmula SAE elétricos, fundada em 2018 no CCT/UDESC com primeira competição oficial em 2022 e cerca de 25 membros. Contatos: Instagram @eforceudesc · admeforce@gmail.com · www.eforceudesc.com",
+      "Grupo de estudos (UFSC Joinville) · Grupo de Aplicação, Pesquisa e Extensão em Engenharia de Transportes e Logística. Faz projetos com empresas, pesquisa e extensão.",
     members: [
-      { id: "mem-47", nome: "Vinícius Andrade", email: "vinicius.eforce@edu.udesc.br", curso: "Engenharia Elétrica" },
-      { id: "mem-48", nome: "Laura Peixoto", email: "laura.eforce@edu.udesc.br", curso: "Engenharia Mecânica" },
+      { id: "mem-34", nome: "Daniel Borges", email: "daniel.gapetl@grad.ufsc.br", curso: "Engenharia de Transportes e Logística" },
+      { id: "mem-35", nome: "Paula Guimarães", email: "paula.gapetl@grad.ufsc.br", curso: "Engenharia de Transportes e Logística" },
     ],
   },
-  // 23. Maratona de Programação — É Sempre o XOR (UDESC Joinville)
+  // 17. Calctec (UFSC Joinville)
   {
-    id: "ent-23",
-    leaderId: "user-leader-23",
-    leaderNome: "Líder Maratona de Programação UDESC",
-    leaderEmail: "maratona.cct@edu.udesc.br",
-    nome: "Maratona de Programação — Equipe \"É Sempre o XOR\" (UDESC Joinville)",
+    id: "ent-16",
+    leaderId: "user-leader-16",
+    leaderNome: "Líder do Calctec (UFSC)",
+    leaderEmail: "calctec@joinville.ufsc.br",
+    nome: "Calctec (UFSC Joinville)",
     descricao:
-      "Programa de extensão interinstitucional de programação competitiva do CCT/UDESC, coordenado pela profa. Karina Roggia. Em março de 2026 conquistou o 14º lugar no ICPC Latino-Americano e classificou-se para a final mundial. Contato: comunicacao.cct@udesc.br",
+      "Centro acadêmico (UFSC Joinville) · Centro Acadêmico Livre de Ciência e Tecnologia. Representa o Bacharelado em Ciência e Tecnologia e organiza rodas de conversa, visitas técnicas e a Semana Acadêmica (SAB Cientec).",
     members: [
-      { id: "mem-49", nome: "Igor Vasconcelos", email: "igor.xor@edu.udesc.br", curso: "Ciência da Computação" },
-      { id: "mem-50", nome: "Sabrina Nogueira", email: "sabrina.xor@edu.udesc.br", curso: "Tecnologia em Análise e Desenvolvimento de Sistemas" },
+      { id: "mem-36", nome: "Henrique Castro", email: "henrique.calctec@grad.ufsc.br", curso: "Bacharelado em Ciência e Tecnologia" },
+      { id: "mem-37", nome: "Lívia Freitas", email: "livia.calctec@grad.ufsc.br", curso: "Bacharelado em Ciência e Tecnologia" },
     ],
   },
-  // 24. Smart Consultoria Jr (UDESC Joinville)
+  // 18. PET – CTJ (UFSC Joinville)
   {
-    id: "ent-24",
-    leaderId: "user-leader-24",
-    leaderNome: "Líder Smart Consultoria Jr",
-    leaderEmail: "smartjr@edu.udesc.br",
-    nome: "Smart Consultoria Jr (UDESC Joinville)",
+    id: "ent-17",
+    leaderId: "user-leader-17",
+    leaderNome: "Líder do PET – CTJ (UFSC)",
+    leaderEmail: "petctj@joinville.ufsc.br",
+    nome: "PET – CTJ (UFSC Joinville)",
     descricao:
-      "Empresa júnior do CCT/UDESC focada em consultoria empresarial: pesquisa de mercado, identidade organizacional e filosofia Lean. Localizada no Hub de Inovação do CCT (Bloco I). Contato: Instagram @smartconsultoriajr",
+      "Programa de Educação Tutorial (UFSC Joinville) · PET das engenharias da mobilidade. Foco em estimular a aprendizagem e o desenvolvimento científico no Centro Tecnológico de Joinville.",
     members: [
-      { id: "mem-51", nome: "Bárbara Queiroz", email: "barbara.smart@edu.udesc.br", curso: "Engenharia de Produção e Sistemas" },
-      { id: "mem-52", nome: "Fernando Guedes", email: "fernando.smart@edu.udesc.br", curso: "Engenharia de Produção e Sistemas" },
-    ],
-  },
-  // 25. Atrium Engenharia Jr (UDESC Joinville)
-  {
-    id: "ent-25",
-    leaderId: "user-leader-25",
-    leaderNome: "Líder Atrium Engenharia Jr",
-    leaderEmail: "atriumjr@edu.udesc.br",
-    nome: "Atrium Engenharia Jr (UDESC Joinville)",
-    descricao:
-      "Empresa júnior multidisciplinar de Engenharia Civil, Produção, Mecânica e Elétrica: projetos arquitetônicos, estruturais e elétricos. Contatos: Instagram @atrium.engenhariajr · https://atriumengenhariajr.com.br",
-    members: [
-      { id: "mem-53", nome: "Marcelo Paiva", email: "marcelo.atrium@edu.udesc.br", curso: "Engenharia Civil" },
-      { id: "mem-54", nome: "Tatiane Rocha", email: "tatiane.atrium@edu.udesc.br", curso: "Engenharia Elétrica" },
-    ],
-  },
-  // 26. Konvex Jr (UDESC Joinville)
-  {
-    id: "ent-26",
-    leaderId: "user-leader-26",
-    leaderNome: "Líder Konvex Jr",
-    leaderEmail: "konvexjr@edu.udesc.br",
-    nome: "Konvex Jr (UDESC Joinville)",
-    descricao:
-      "Empresa júnior de Engenharia Mecânica e Ciência da Computação: projeto de máquinas, desenvolvimento de sites, e-commerce e prototipagem. Contato: Instagram @konvexjr",
-    members: [
-      { id: "mem-55", nome: "Samuel Batista", email: "samuel.konvex@edu.udesc.br", curso: "Ciência da Computação" },
-      { id: "mem-56", nome: "Rafaela Campos", email: "rafaela.konvex@edu.udesc.br", curso: "Engenharia Mecânica" },
-    ],
-  },
-  // 27. Educar Jr (UDESC Joinville)
-  {
-    id: "ent-27",
-    leaderId: "user-leader-27",
-    leaderNome: "Líder Educar Jr",
-    leaderEmail: "educajrcct@gmail.com",
-    nome: "Educar Jr (UDESC Joinville)",
-    descricao:
-      "Empresa júnior das Licenciaturas em Química, Física e Matemática da UDESC Joinville, coordenada pelo prof. Volnei Soethe (aprovada em 2025, sala I307, Bloco I). Contato: educajrcct@gmail.com",
-    members: [
-      { id: "mem-57", nome: "Priscila Macedo", email: "priscila.educar@edu.udesc.br", curso: "Licenciatura em Física" },
-      { id: "mem-58", nome: "Fábio Correia", email: "fabio.educar@edu.udesc.br", curso: "Licenciatura em Matemática" },
-    ],
-  },
-  // 28. CADEE - Centro Acadêmico de Engenharia Elétrica (UDESC)
-  {
-    id: "ent-28",
-    leaderId: "user-leader-28",
-    leaderNome: "Líder CA Engenharia Elétrica",
-    leaderEmail: "cadee@edu.udesc.br",
-    nome: "Centro Acadêmico Democrático de Engenharia Elétrica (UDESC Joinville)",
-    descricao:
-      "Representação estudantil do curso de Engenharia Elétrica do CCT/UDESC Joinville. Contato: Instagram @danmacct",
-    members: [
-      { id: "mem-59", nome: "Alexandre Pires", email: "alexandre.cadee@edu.udesc.br", curso: "Engenharia Elétrica" },
-    ],
-  },
-  // 29. CAEM - Centro Acadêmico da Engenharia Mecânica (UDESC)
-  {
-    id: "ent-29",
-    leaderId: "user-leader-29",
-    leaderNome: "Líder CA Engenharia Mecânica",
-    leaderEmail: "caem@edu.udesc.br",
-    nome: "Centro Acadêmico da Engenharia Mecânica (UDESC Joinville)",
-    descricao:
-      "Representação estudantil do curso de Engenharia Mecânica do CCT/UDESC Joinville. Contato: Instagram @vai.calc",
-    members: [
-      { id: "mem-60", nome: "Roberto Dias", email: "roberto.caem@edu.udesc.br", curso: "Engenharia Mecânica" },
-    ],
-  },
-  // 30. CAEPS - Centro Acadêmico de Produção e Sistemas (UDESC)
-  {
-    id: "ent-30",
-    leaderId: "user-leader-30",
-    leaderNome: "Líder CAEPS",
-    leaderEmail: "caeps@edu.udesc.br",
-    nome: "Centro Acadêmico de Produção e Sistemas — CAEPS (UDESC Joinville)",
-    descricao:
-      "Representação estudantil do curso de Engenharia de Produção e Sistemas do CCT/UDESC Joinville. Contato: Instagram @udesc.caeps",
-    members: [
-      { id: "mem-61", nome: "Mônica Silveira", email: "monica.caeps@edu.udesc.br", curso: "Engenharia de Produção e Sistemas" },
-    ],
-  },
-  // 31. CACIC - Centro Acadêmico de Ciência da Computação (UDESC)
-  {
-    id: "ent-31",
-    leaderId: "user-leader-31",
-    leaderNome: "Líder CACIC",
-    leaderEmail: "cacic@edu.udesc.br",
-    nome: "Centro Acadêmico de Ciência da Computação — CACIC (UDESC Joinville)",
-    descricao:
-      "Representação estudantil do curso de Ciência da Computação do CCT/UDESC Joinville. Contato: Instagram @cacic_udesc",
-    members: [
-      { id: "mem-62", nome: "Luan Fernandes", email: "luan.cacic@edu.udesc.br", curso: "Ciência da Computação" },
-    ],
-  },
-  // 32. CAFI - Centro Acadêmico de Física (UDESC)
-  {
-    id: "ent-32",
-    leaderId: "user-leader-32",
-    leaderNome: "Líder CAFI",
-    leaderEmail: "cafi@edu.udesc.br",
-    nome: "Centro Acadêmico de Física — CAFI (UDESC Joinville)",
-    descricao:
-      "Representação estudantil do curso de Licenciatura em Física do CCT/UDESC Joinville. Contato: Instagram @cafi.cct",
-    members: [
-      { id: "mem-63", nome: "Sérgio Matos", email: "sergio.cafi@edu.udesc.br", curso: "Licenciatura em Física" },
-    ],
-  },
-  // 33. CAMAT - Centro Acadêmico da Matemática (UDESC)
-  {
-    id: "ent-33",
-    leaderId: "user-leader-33",
-    leaderNome: "Líder CAMAT",
-    leaderEmail: "camat@edu.udesc.br",
-    nome: "Centro Acadêmico da Matemática — CAMAT (UDESC Joinville)",
-    descricao:
-      "Representação estudantil do curso de Licenciatura em Matemática do CCT/UDESC Joinville. Contato: Instagram @camat.udesc",
-    members: [
-      { id: "mem-64", nome: "Elisa Pacheco", email: "elisa.camat@edu.udesc.br", curso: "Licenciatura em Matemática" },
-    ],
-  },
-  // 34. CAQUI - Centro Acadêmico de Química (UDESC)
-  {
-    id: "ent-34",
-    leaderId: "user-leader-34",
-    leaderNome: "Líder CAQUI",
-    leaderEmail: "caqui@edu.udesc.br",
-    nome: "Centro Acadêmico de Química — CAQUI (UDESC Joinville)",
-    descricao:
-      "Representação estudantil do curso de Licenciatura em Química do CCT/UDESC Joinville. Contato: Instagram @caqui.udesc",
-    members: [
-      { id: "mem-65", nome: "Vanessa Lima", email: "vanessa.caqui@edu.udesc.br", curso: "Licenciatura em Química" },
-    ],
-  },
-  // 35. CALIC - Centro Acadêmico Livre da Civil (UDESC)
-  {
-    id: "ent-35",
-    leaderId: "user-leader-35",
-    leaderNome: "Líder CA Engenharia Civil",
-    leaderEmail: "calic@edu.udesc.br",
-    nome: "Centro Acadêmico Livre da Civil (UDESC Joinville)",
-    descricao:
-      "Representação estudantil do curso de Engenharia Civil do CCT/UDESC Joinville.",
-    members: [
-      { id: "mem-66", nome: "Eduardo Mello", email: "eduardo.civil@edu.udesc.br", curso: "Engenharia Civil" },
-    ],
-  },
-  // 36. Associação Atlética Acadêmica CCT (UDESC)
-  {
-    id: "ent-36",
-    leaderId: "user-leader-36",
-    leaderNome: "Líder Atlética CCT",
-    leaderEmail: "atletica@edu.udesc.br",
-    nome: "Associação Atlética Acadêmica CCT (UDESC Joinville)",
-    descricao:
-      "Associação Atlética Acadêmica do Centro de Ciências Tecnológicas da UDESC Joinville, promovendo integração esportiva e eventos universitários. Contato: Instagram @atleticacct",
-    members: [
-      { id: "mem-67", nome: "César Augusto", email: "cesar.atletica@edu.udesc.br", curso: "Engenharia Mecânica" },
-      { id: "mem-68", nome: "Milena Soares", email: "milena.atletica@edu.udesc.br", curso: "Engenharia de Produção e Sistemas" },
+      { id: "mem-38", nome: "André Ramos", email: "andre.pet@grad.ufsc.br", curso: "Engenharia Aeroespacial" },
+      { id: "mem-39", nome: "Letícia Prado", email: "leticia.pet@grad.ufsc.br", curso: "Engenharia Automotiva" },
     ],
   },
 ];
