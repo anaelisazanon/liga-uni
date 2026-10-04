@@ -32,18 +32,27 @@ function createSupabaseFetch(supabaseKey: string): typeof fetch {
 }
 
 type TableMap = {
+  admin_messages: Database["public"]["Tables"]["admin_messages"]["Row"];
   entities: Database["public"]["Tables"]["entities"]["Row"];
   events: Database["public"]["Tables"]["events"]["Row"];
+  general_meetings: Database["public"]["Tables"]["general_meetings"]["Row"];
   leader_requests: Database["public"]["Tables"]["leader_requests"]["Row"];
+  meeting_attendances: Database["public"]["Tables"]["meeting_attendances"]["Row"];
   members: Database["public"]["Tables"]["members"]["Row"];
+  peer_workshops: Database["public"]["Tables"]["peer_workshops"]["Row"];
   profiles: Database["public"]["Tables"]["profiles"]["Row"];
   reservations: Database["public"]["Tables"]["reservations"]["Row"];
+  reward_redemptions: Database["public"]["Tables"]["reward_redemptions"]["Row"];
   rooms: Database["public"]["Tables"]["rooms"]["Row"];
+  staff_calls: Database["public"]["Tables"]["staff_calls"]["Row"];
+  staff_volunteers: Database["public"]["Tables"]["staff_volunteers"]["Row"];
+  training_registrations: Database["public"]["Tables"]["training_registrations"]["Row"];
+  trainings: Database["public"]["Tables"]["trainings"]["Row"];
   user_roles: Database["public"]["Tables"]["user_roles"]["Row"];
 };
 
-const STORAGE_DB_KEY = "liga_uni_demo_db_v5";
-const STORAGE_USER_KEY = "liga_uni_demo_user_v5";
+const STORAGE_DB_KEY = "liga_uni_demo_db_v18";
+const STORAGE_USER_KEY = "liga_uni_demo_user_v18";
 
 function createInitialDb(): { [K in keyof TableMap]: TableMap[K][] } {
   const now = new Date().toISOString();
@@ -82,6 +91,7 @@ function createInitialDb(): { [K in keyof TableMap]: TableMap[K][] } {
       nome: p.nome,
       descricao: p.descricao,
       leader_id: p.leaderId,
+      avisos_email: true,
       created_at: now,
     })),
     leader_requests: [
@@ -112,7 +122,7 @@ function createInitialDb(): { [K in keyof TableMap]: TableMap[K][] } {
     rooms: [
       {
         id: "room-1",
-        nome: "Sala de reunião A (exemplo)",
+        nome: "Sala de Reunião A",
         capacidade: 12,
         descricao: "Sala equipada com TV e quadro branco no Ágora Tech Park.",
         ativa: true,
@@ -120,7 +130,7 @@ function createInitialDb(): { [K in keyof TableMap]: TableMap[K][] } {
       },
       {
         id: "room-2",
-        nome: "Sala de reunião B (exemplo)",
+        nome: "Sala de Reunião B",
         capacidade: 20,
         descricao: "Espaço colaborativo para dinâmicas e reuniões de projetos.",
         ativa: true,
@@ -128,9 +138,17 @@ function createInitialDb(): { [K in keyof TableMap]: TableMap[K][] } {
       },
       {
         id: "room-3",
-        nome: "Auditório Ágora (exemplo)",
+        nome: "Auditório Ágora Tech Park",
         capacidade: 80,
-        descricao: "Auditório para capacitações, workshops e hackathons.",
+        descricao: "Auditório principal para capacitações, workshops, mostras e hackathons.",
+        ativa: true,
+        created_at: now,
+      },
+      {
+        id: "room-4",
+        nome: "Sala compartilhada Ágora.Share",
+        capacidade: 30,
+        descricao: "Espaço compartilhado de coworking e integração entre equipes no Ágora.Share.",
         ativa: true,
         created_at: now,
       },
@@ -142,7 +160,7 @@ function createInitialDb(): { [K in keyof TableMap]: TableMap[K][] } {
         titulo: "Oficina de Robótica Móvel e Inclusão Social",
         descricao:
           "Atividade prática do GERM aberta à comunidade para fomentar o interesse em ciência e tecnologia.",
-        local: "Sala de reunião A (exemplo)",
+        local: "Sala de Reunião A",
         inicio: inDays(2, 14),
         fim: inDays(2, 16),
         created_at: now,
@@ -153,7 +171,7 @@ function createInitialDb(): { [K in keyof TableMap]: TableMap[K][] } {
         titulo: "Mostra e Hackathon de Robótica no Ágora",
         descricao:
           "Imersão de dois dias com discentes do CCT/UDESC apresentando projetos de robótica móvel.",
-        local: "Auditório Ágora (exemplo)",
+        local: "Auditório Ágora Tech Park",
         inicio: inDays(5, 9),
         fim: inDays(6, 18),
         created_at: now,
@@ -164,7 +182,7 @@ function createInitialDb(): { [K in keyof TableMap]: TableMap[K][] } {
         titulo: "Reunião Geral do GERM — UDESC Joinville",
         descricao:
           "Alinhamento das frentes de ensino, pesquisa e extensão dos cursos do Centro de Ciências Tecnológicas.",
-        local: "Sala de reunião B (exemplo)",
+        local: "Sala de Reunião B",
         inicio: inDays(10, 19),
         fim: inDays(10, 21),
         created_at: now,
@@ -175,7 +193,7 @@ function createInitialDb(): { [K in keyof TableMap]: TableMap[K][] } {
         titulo: "Apresentação dos Protótipos IC e EV — Fórmula CEM",
         descricao:
           "Demonstração técnica dos veículos Fórmula-SAE a combustão e elétrico desenvolvidos na UFSC Joinville.",
-        local: "Auditório Ágora (exemplo)",
+        local: "Auditório Ágora Tech Park",
         inicio: inDays(4, 15),
         fim: inDays(4, 18),
         created_at: now,
@@ -186,7 +204,7 @@ function createInitialDb(): { [K in keyof TableMap]: TableMap[K][] } {
         titulo: "Revisão de Projeto para Competição SAE Brasil",
         descricao:
           "Reunião dos subsistemas de powertrain, aerodinâmica e eletrônica da equipe Fórmula CEM.",
-        local: "Sala de reunião B (exemplo)",
+        local: "Sala compartilhada Ágora.Share",
         inicio: inDays(8, 14),
         fim: inDays(8, 17),
         created_at: now,
@@ -199,6 +217,7 @@ function createInitialDb(): { [K in keyof TableMap]: TableMap[K][] } {
         event_id: "ev-1",
         room_id: "room-1",
         requested_by: "user-leader-1",
+        purpose: "capacitacao_geral",
         motivo: "Realização da Oficina de Robótica Móvel e Inclusão Social pelo GERM (UDESC)",
         inicio: inDays(2, 14),
         fim: inDays(2, 16),
@@ -212,6 +231,7 @@ function createInitialDb(): { [K in keyof TableMap]: TableMap[K][] } {
         event_id: "ev-3",
         room_id: "room-2",
         requested_by: "user-leader-1",
+        purpose: "reuniao_projeto",
         motivo: "Reunião Geral da equipe do GERM — UDESC Joinville",
         inicio: inDays(10, 19),
         fim: inDays(10, 21),
@@ -225,6 +245,7 @@ function createInitialDb(): { [K in keyof TableMap]: TableMap[K][] } {
         event_id: "ev-4",
         room_id: "room-3",
         requested_by: "user-leader-2",
+        purpose: "capacitacao_geral",
         motivo: "Apresentação dos Protótipos IC e EV da Fórmula CEM (UFSC Joinville)",
         inicio: inDays(4, 15),
         fim: inDays(4, 18),
@@ -238,6 +259,7 @@ function createInitialDb(): { [K in keyof TableMap]: TableMap[K][] } {
         event_id: "ev-5",
         room_id: "room-2",
         requested_by: "user-leader-2",
+        purpose: "reuniao_projeto",
         motivo: "Revisão de Projeto para Competição SAE Brasil — Fórmula CEM (UFSC)",
         inicio: inDays(8, 14),
         fim: inDays(8, 17),
@@ -246,21 +268,376 @@ function createInitialDb(): { [K in keyof TableMap]: TableMap[K][] } {
         created_at: now,
       },
     ],
+    trainings: [
+      {
+        id: "tr-1",
+        titulo: "Capacitação em Comunicação Proativa e Liderança Colaborativa",
+        descricao:
+          "Desenvolva habilidades de comunicação assertiva, alinhamento de expectativas em equipes universitárias, resolução de conflitos e protagonismo nos projetos do Liga UNI.",
+        ministrante: "Equipe Liga Ágora · Mentoria de Gestão",
+        local: "Auditório Ágora Tech Park",
+        inicio: inDays(3, 18),
+        fim: inDays(3, 20),
+        vagas: 40,
+        ativa: true,
+        created_at: now,
+      },
+      {
+        id: "tr-2",
+        titulo: "Gestão Ágil de Projetos Acadêmicos e Captação de Parcerias",
+        descricao:
+          "Boas práticas de organização de sprints, gestão de membros voluntários e estruturação de propostas de patrocínio para equipes de competição e extensão.",
+        ministrante: "Comunidade Ágora Tech Park",
+        local: "Sala de Reunião B",
+        inicio: inDays(7, 19),
+        fim: inDays(7, 21),
+        vagas: 25,
+        ativa: true,
+        created_at: now,
+      },
+      {
+        id: "tr-3",
+        titulo: "Pitch de Alto Impacto e Apresentação de Protótipos",
+        descricao:
+          "Como apresentar os resultados técnicos da sua equipe para avaliadores, empresas parceiras e comunidade em 3 a 5 minutos.",
+        ministrante: "Mentores Liga Ágora",
+        local: "Sala de Reunião A",
+        inicio: inDays(12, 18),
+        fim: inDays(12, 20),
+        vagas: 20,
+        ativa: true,
+        created_at: now,
+      },
+      {
+        id: "tr-past-1",
+        titulo: "Boas-Vindas e Integração de Líderes Liga UNI",
+        descricao:
+          "Encontro formativo inicial sobre cultura de inovação colaborativa e uso compartilhado dos espaços do Ágora Tech Park.",
+        ministrante: "Coordenação Liga Ágora",
+        local: "Auditório Ágora Tech Park",
+        inicio: inDays(-10, 18),
+        fim: inDays(-10, 20),
+        vagas: 50,
+        ativa: true,
+        created_at: now,
+      },
+    ],
+    training_registrations: [
+      {
+        id: "treg-1",
+        training_id: "tr-1",
+        entity_id: "ent-1",
+        participantes: "Carlos Eduardo, Beatriz Souza, Rafael Mendes",
+        moedas_liberadas: false,
+        created_at: now,
+      },
+      {
+        id: "treg-past-1",
+        training_id: "tr-past-1",
+        entity_id: "ent-1",
+        participantes: "Carlos Eduardo, Beatriz Souza",
+        moedas_liberadas: true,
+        created_at: now,
+      },
+      {
+        id: "treg-2",
+        training_id: "tr-1",
+        entity_id: "ent-2",
+        participantes: "Lucas Ferreira, Mariana Alves",
+        moedas_liberadas: false,
+        created_at: now,
+      },
+    ],
+    staff_calls: [
+      {
+        id: "sc-1",
+        evento: "Hackathon Liga UNI & Mostra Tecnológica no Ágora",
+        descricao:
+          "Precisamos de voluntários das entidades para apoio no credenciamento, recepção dos participantes, orientação de salas e suporte de palco durante o evento no Ágora Tech Park.",
+        local: "Auditório Ágora Tech Park",
+        inicio: inDays(5, 8),
+        fim: inDays(5, 18),
+        vagas: 15,
+        ativa: true,
+        created_at: now,
+      },
+      {
+        id: "sc-2",
+        evento: "Encontro de Integração Universidade-Empresa (Liga Ágora)",
+        descricao:
+          "Apoio como staff na organização das rodadas de conexão entre grupos estudantis universitários e empresas residentes do Ágora.",
+        local: "Sala compartilhada Ágora.Share",
+        inicio: inDays(9, 14),
+        fim: inDays(9, 19),
+        vagas: 10,
+        ativa: true,
+        created_at: now,
+      },
+      {
+        id: "sc-3",
+        evento: "Dia da Comunidade: Robótica e Engenharias para Escolas",
+        descricao:
+          "Auxílio na monitoria de visitantes, organização das bancadas de exposição dos protótipos e acompanhamento de turmas escolares.",
+        local: "Auditório Ágora Tech Park",
+        inicio: inDays(14, 9),
+        fim: inDays(14, 17),
+        vagas: 20,
+        ativa: true,
+        created_at: now,
+      },
+      {
+        id: "sc-past-1",
+        evento: "Recepção de Calouros & Tour de Inovação no Ágora",
+        descricao:
+          "Apoio das entidades estudantis na recepção e apresentação dos laboratórios e espaços para novos estudantes universitários.",
+        local: "Auditório Ágora Tech Park",
+        inicio: inDays(-14, 14),
+        fim: inDays(-14, 18),
+        vagas: 12,
+        ativa: true,
+        created_at: now,
+      },
+    ],
+    staff_volunteers: [
+      {
+        id: "sv-1",
+        call_id: "sc-1",
+        entity_id: "ent-1",
+        participantes: "Carlos Eduardo, Juliana Costa",
+        observacao: "Disponibilidade para recepção e suporte às equipes de robótica.",
+        moedas_liberadas: false,
+        created_at: now,
+      },
+      {
+        id: "sv-past-1",
+        call_id: "sc-past-1",
+        entity_id: "ent-1",
+        participantes: "Rafael Mendes, Juliana Costa",
+        observacao: "Apoio na condução dos grupos pelo Ágora.",
+        moedas_liberadas: true,
+        created_at: now,
+      },
+      {
+        id: "sv-2",
+        call_id: "sc-1",
+        entity_id: "ent-2",
+        participantes: "Gabriel Rocha, Fernanda Lima",
+        observacao: "Apoio na montagem de estandes e credenciamento.",
+        moedas_liberadas: false,
+        created_at: now,
+      },
+    ],
+    peer_workshops: [
+      {
+        id: "pw-1",
+        entity_id: "ent-1",
+        room_id: "room-3",
+        titulo: "Introdução a ROS2 e Sensores para Robótica Móvel",
+        descricao:
+          "Oficina prática aberta para todas as equipes sobre integração de sensores e navegação autônoma com ROS2.",
+        ministrantes: "Rafael Mendes, Carlos Eduardo",
+        em_conjunto: false,
+        partner_entity_id: null,
+        data_sugerida: inDays(6, 15),
+        fim: inDays(6, 17),
+        status: "approved",
+        moedas_liberadas: false,
+        created_at: now,
+      },
+      {
+        id: "pw-past-1",
+        entity_id: "ent-1",
+        room_id: "room-1",
+        titulo: "Modelagem CAD 3D e Impressão Rápida de Protótipos",
+        descricao:
+          "Oficina ministrada pela equipe sobre boas práticas de fatiamento e resistência mecânica em peças impressas em 3D.",
+        ministrantes: "Beatriz Souza, Rafael Mendes",
+        em_conjunto: false,
+        partner_entity_id: null,
+        data_sugerida: inDays(-8, 15),
+        fim: inDays(-8, 17),
+        status: "approved",
+        moedas_liberadas: true,
+        created_at: now,
+      },
+      {
+        id: "pw-2",
+        entity_id: "ent-2",
+        room_id: "room-4",
+        titulo: "Telemetria e Aquisição de Dados em Protótipos de Competição",
+        descricao:
+          "Compartilhamento de práticas da Fórmula CEM sobre instrumentação eletrônica e análise de dados em pista.",
+        ministrantes: "Mariana Alves, Lucas Ferreira",
+        em_conjunto: false,
+        partner_entity_id: null,
+        data_sugerida: inDays(11, 16),
+        fim: inDays(11, 18),
+        status: "pending",
+        moedas_liberadas: false,
+        created_at: now,
+      },
+    ],
+    general_meetings: [
+      {
+        id: "gm-1",
+        titulo: "1ª Reunião Geral de Alinhamento Liga UNI — Semestre 2026/2",
+        pauta:
+          "Apresentação oficial do calendário de eventos do semestre no Ágora Tech Park, regras de uso das salas, distribuição de estandes na Mostra Tecnológica e integração entre os líderes das entidades universitárias.",
+        local: "Auditório Ágora Tech Park",
+        inicio: inDays(4, 19),
+        fim: inDays(4, 21),
+        pontos: 75,
+        obrigatoria: true,
+        ativa: true,
+        created_at: now,
+      },
+      {
+        id: "gm-2",
+        titulo: "Assembleia Geral de Líderes & Planejamento do Hackathon Liga UNI",
+        pauta:
+          "Definição das comissões organizadoras entre as entidades, sorteio de horários de apresentação e alinhamento com mentores do Liga Ágora.",
+        local: "Sala compartilhada Ágora.Share",
+        inicio: inDays(15, 19),
+        fim: inDays(15, 21),
+        pontos: 75,
+        obrigatoria: true,
+        ativa: true,
+        created_at: now,
+      },
+      {
+        id: "gm-past-1",
+        titulo: "Reunião de Abertura do Semestre Liga UNI",
+        pauta:
+          "Recepção das entidades veteranas e novas, alinhamento das diretrizes de convivência e apresentação do sistema LigaCoins.",
+        local: "Auditório Ágora Tech Park",
+        inicio: inDays(-12, 19),
+        fim: inDays(-12, 21),
+        pontos: 75,
+        obrigatoria: true,
+        ativa: true,
+        created_at: now,
+      },
+    ],
+    meeting_attendances: [
+      {
+        id: "ma-1",
+        meeting_id: "gm-1",
+        entity_id: "ent-1",
+        representantes: "Carlos Eduardo, Beatriz Souza",
+        presente: true,
+        moedas_liberadas: false,
+        created_at: now,
+      },
+      {
+        id: "ma-past-1",
+        meeting_id: "gm-past-1",
+        entity_id: "ent-1",
+        representantes: "Carlos Eduardo, Beatriz Souza",
+        presente: true,
+        moedas_liberadas: true,
+        created_at: now,
+      },
+      {
+        id: "ma-2",
+        meeting_id: "gm-1",
+        entity_id: "ent-2",
+        representantes: "Lucas Ferreira",
+        presente: true,
+        moedas_liberadas: false,
+        created_at: now,
+      },
+    ],
+    admin_messages: [
+      {
+        id: "msg-1",
+        entity_id: "ent-1",
+        topico: "Salas & Equipamentos",
+        assunto: "Dúvida sobre equipamentos do Auditório Ágora",
+        mensagem:
+          "Olá! Gostaríamos de saber se o auditório possui adaptador HDMI e microfone sem fio para nossa oficina de robótica.",
+        resposta:
+          "Sim! O auditório já conta com 2 microfones sem fio, passador de slides e cabo HDMI na bancada principal.",
+        status: "answered",
+        created_at: now,
+      },
+      {
+        id: "msg-2",
+        entity_id: "ent-2",
+        topico: "LigaCoins & Benefícios",
+        assunto: "Agendamento de Mentoria Técnica",
+        mensagem:
+          "Gostaríamos de alinhar qual empresa residente do Ágora poderia nos apoiar na revisão da telemetria elétrica.",
+        resposta: null,
+        status: "pending",
+        created_at: now,
+      },
+    ],
+    reward_redemptions: [
+      {
+        id: "red-1",
+        entity_id: "ent-1",
+        recompensa_id: "mentoria-empresa",
+        recompensa_titulo: "Mentoria VIP com Empresa Residente do Ágora",
+        custo: 100,
+        observacao: "Interesse em mentoria de visão computacional e sistemas embarcados.",
+        status: "pending",
+        created_at: now,
+      },
+    ],
   };
 }
 
 function loadPersistedDb(): { [K in keyof TableMap]: TableMap[K][] } {
+  const initial = createInitialDb();
   if (typeof window !== "undefined") {
     try {
       const raw = window.localStorage.getItem(STORAGE_DB_KEY);
       if (raw) {
-        return JSON.parse(raw) as { [K in keyof TableMap]: TableMap[K][] };
+        const parsed = JSON.parse(raw) as Partial<{ [K in keyof TableMap]: TableMap[K][] }>;
+        return {
+          profiles: Array.isArray(parsed.profiles) ? parsed.profiles : initial.profiles,
+          user_roles: Array.isArray(parsed.user_roles) ? parsed.user_roles : initial.user_roles,
+          entities: Array.isArray(parsed.entities) ? parsed.entities : initial.entities,
+          leader_requests: Array.isArray(parsed.leader_requests)
+            ? parsed.leader_requests
+            : initial.leader_requests,
+          members: Array.isArray(parsed.members) ? parsed.members : initial.members,
+          rooms: Array.isArray(parsed.rooms) ? parsed.rooms : initial.rooms,
+          events: Array.isArray(parsed.events) ? parsed.events : initial.events,
+          reservations: Array.isArray(parsed.reservations)
+            ? parsed.reservations
+            : initial.reservations,
+          trainings: Array.isArray(parsed.trainings) ? parsed.trainings : initial.trainings,
+          training_registrations: Array.isArray(parsed.training_registrations)
+            ? parsed.training_registrations
+            : initial.training_registrations,
+          staff_calls: Array.isArray(parsed.staff_calls)
+            ? parsed.staff_calls
+            : initial.staff_calls,
+          staff_volunteers: Array.isArray(parsed.staff_volunteers)
+            ? parsed.staff_volunteers
+            : initial.staff_volunteers,
+          peer_workshops: Array.isArray(parsed.peer_workshops)
+            ? parsed.peer_workshops
+            : initial.peer_workshops,
+          general_meetings: Array.isArray(parsed.general_meetings)
+            ? parsed.general_meetings
+            : initial.general_meetings,
+          meeting_attendances: Array.isArray(parsed.meeting_attendances)
+            ? parsed.meeting_attendances
+            : initial.meeting_attendances,
+          admin_messages: Array.isArray(parsed.admin_messages)
+            ? parsed.admin_messages
+            : initial.admin_messages,
+          reward_redemptions: Array.isArray(parsed.reward_redemptions)
+            ? parsed.reward_redemptions
+            : initial.reward_redemptions,
+        };
       }
     } catch {
       // ignore
     }
   }
-  const initial = createInitialDb();
   savePersistedDb(initial);
   return initial;
 }
@@ -320,6 +697,9 @@ function createMockSupabaseClient() {
     let isMaybeSingle = false;
 
     const execute = async () => {
+      if (!Array.isArray(db[table])) {
+        (db as Record<string, unknown[]>)[table] = [];
+      }
       const list = db[table] as Record<string, unknown>[];
       if (op === "insert") {
         const items = Array.isArray(payload) ? payload : [payload];
@@ -376,6 +756,35 @@ function createMockSupabaseClient() {
                   nome: entityName,
                   descricao: reqDescricao,
                   leader_id: reqUserId,
+                  created_at: new Date().toISOString(),
+                });
+              }
+            }
+          }
+        }
+        if (table === "peer_workshops" && payload && typeof payload === "object") {
+          const upd = payload as Record<string, unknown>;
+          for (const r of matched) {
+            const nextStatus = (upd["status"] ?? r["status"]) as string;
+            if (nextStatus === "approved") {
+              const titulo = String(r["titulo"]);
+              const roomObj = db.rooms.find((rm) => rm.id === r["room_id"]);
+              const roomName = roomObj?.nome ?? "Auditório Ágora Tech Park";
+              if (!db.trainings.some((t) => t.titulo === titulo)) {
+                const startIso = String(r["data_sugerida"] || new Date().toISOString());
+                const endIso = r["fim"]
+                  ? String(r["fim"])
+                  : new Date(new Date(startIso).getTime() + 2 * 3600000).toISOString();
+                db.trainings.push({
+                  id: `tr-${Date.now()}`,
+                  titulo,
+                  descricao: String(r["descricao"] ?? ""),
+                  ministrante: String(r["ministrantes"] ?? "Oficina entre equipes"),
+                  local: roomName,
+                  inicio: startIso,
+                  fim: endIso,
+                  vagas: roomObj?.capacidade ?? 25,
+                  ativa: true,
                   created_at: new Date().toISOString(),
                 });
               }
@@ -539,7 +948,10 @@ function createMockSupabaseClient() {
         }
 
         const existingProfile = db.profiles.find((p) => p.email.toLowerCase() === lower);
-        const isAdmin = lower.includes("admin");
+        const existingRole = existingProfile
+          ? db.user_roles.find((r) => r.user_id === existingProfile.id)?.role
+          : undefined;
+        const isAdmin = existingRole ? existingRole === "admin" : lower.includes("admin");
         const userId = existingProfile?.id ?? (isAdmin ? "user-admin-1" : "user-leader-1");
         const nome =
           existingProfile?.nome ?? (isAdmin ? "Administrador Ágora" : "Líder do GERM (UDESC)");
@@ -735,14 +1147,11 @@ function createHybridSupabaseClient(realUrl: string, realKey: string) {
   };
 
   return new Proxy(realClient, {
-    get(target, prop, receiver) {
+    get(_target, prop, receiver) {
       if (prop === "auth") {
         return hybridAuth;
       }
-      if (isLocalSessionActive()) {
-        return Reflect.get(mockClient, prop, receiver);
-      }
-      return Reflect.get(target, prop, receiver);
+      return Reflect.get(mockClient, prop, receiver);
     },
   });
 }

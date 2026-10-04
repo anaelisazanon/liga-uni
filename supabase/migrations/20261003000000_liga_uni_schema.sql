@@ -79,6 +79,44 @@ create table if not exists public.leader_requests (
   admin_note text,
   created_at timestamptz not null default now()
 );
+create table if not exists public.trainings (
+  id uuid primary key default gen_random_uuid(),
+  titulo text not null,
+  descricao text not null default '',
+  ministrante text not null default '',
+  local text not null default '',
+  inicio timestamptz not null,
+  fim timestamptz not null,
+  vagas int not null default 30,
+  ativa boolean not null default true,
+  created_at timestamptz not null default now()
+);
+create table if not exists public.training_registrations (
+  id uuid primary key default gen_random_uuid(),
+  training_id uuid not null references public.trainings(id) on delete cascade,
+  entity_id uuid not null references public.entities(id) on delete cascade,
+  participantes text not null,
+  created_at timestamptz not null default now()
+);
+create table if not exists public.staff_calls (
+  id uuid primary key default gen_random_uuid(),
+  evento text not null,
+  descricao text not null default '',
+  local text not null default '',
+  inicio timestamptz not null,
+  fim timestamptz not null,
+  vagas int not null default 10,
+  ativa boolean not null default true,
+  created_at timestamptz not null default now()
+);
+create table if not exists public.staff_volunteers (
+  id uuid primary key default gen_random_uuid(),
+  call_id uuid not null references public.staff_calls(id) on delete cascade,
+  entity_id uuid not null references public.entities(id) on delete cascade,
+  participantes text not null,
+  observacao text not null default '',
+  created_at timestamptz not null default now()
+);
 
 -- Funções de apoio
 create or replace function public.has_role(_user_id uuid, _role public.app_role)

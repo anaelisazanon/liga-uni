@@ -1,15 +1,29 @@
-import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
+import { createFileRoute, Outlet, redirect, useLocation } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import {
   Building2,
   CalendarDays,
-  DoorOpen,
-  LayoutDashboard,
   ClipboardCheck,
-  UserPlus,
+  DoorOpen,
+  Gift,
+  GraduationCap,
+  HandHelping,
+  LayoutDashboard,
+  Lightbulb,
+  Megaphone,
+  MessageSquare,
 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
-import { leaderRequestsQuery, reservationsQuery } from "@/lib/data";
+import {
+  adminMessagesQuery,
+  leaderRequestsQuery,
+  meetingAttendancesQuery,
+  peerWorkshopsQuery,
+  reservationsQuery,
+  rewardRedemptionsQuery,
+  staffVolunteersQuery,
+  trainingRegistrationsQuery,
+} from "@/lib/data";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   beforeLoad: ({ context }) => {
@@ -20,22 +34,109 @@ export const Route = createFileRoute("/_authenticated/admin")({
 });
 
 function AdminLayout() {
+  const location = useLocation();
   const { data: res = [] } = useQuery(reservationsQuery());
   const { data: reqs = [] } = useQuery(leaderRequestsQuery);
+  const { data: trainingRegs = [] } = useQuery(trainingRegistrationsQuery());
+  const { data: staffVols = [] } = useQuery(staffVolunteersQuery());
+  const { data: workshops = [] } = useQuery(peerWorkshopsQuery());
+  const { data: attendances = [] } = useQuery(meetingAttendancesQuery());
+  const { data: redemptions = [] } = useQuery(rewardRedemptionsQuery());
+  const { data: msgs = [] } = useQuery(adminMessagesQuery());
+
+  const pendingMeetingsCount = attendances.filter((a) => a.presente && !a.moedas_liberadas).length;
+  const pendingTrainingsCount = trainingRegs.filter((r) => !r.moedas_liberadas).length;
+  const pendingStaffCount = staffVols.filter((v) => !v.moedas_liberadas).length;
+  const pendingWorkshopsCount = workshops.filter(
+    (w) => w.status === "pending" || (w.status === "approved" && !w.moedas_liberadas),
+  ).length;
   const pendingResCount = res.filter((r) => r.status === "pending").length;
   const pendingReqCount = reqs.filter((r) => r.status === "pending").length;
+  const pendingRedemptionsCount = redemptions.filter((r) => r.status === "pending").length;
+  const pendingBenefitsAndLeadersCount = pendingRedemptionsCount + pendingReqCount;
+  const pendingMsgsCount = msgs.filter((m) => m.status === "pending").length;
+
+  const totalPendingApprovals =
+    pendingMeetingsCount +
+    pendingTrainingsCount +
+    pendingStaffCount +
+    pendingWorkshopsCount +
+    pendingResCount +
+    pendingBenefitsAndLeadersCount;
+
+  const isOnAprovacoes = location.pathname.startsWith("/admin/aprovacoes");
+  const searchParams = new URLSearchParams(location.searchStr || "");
+  const currentTab = searchParams.get("tab");
 
   const nav = [
     { to: "/admin", label: "Visão geral", icon: LayoutDashboard, exact: true },
-    { to: "/admin/cadastros", label: "Cadastros", icon: UserPlus, count: pendingReqCount },
-    { to: "/admin/entidades", label: "Entidades", icon: Building2 },
+    {
+      to: "/admin/aprovacoes",
+      label: "Aprovações",
+      icon: ClipboardCheck,
+      count: totalPendingApprovals,
+      isActive: isOnAprovacoes && !currentTab,
+      children: [
+        {
+          to: "/admin/aprovacoes",
+          search: { tab: "reunioes" },
+          label: "Reuniões Liga UNI",
+          icon: Megaphone,
+          count: pendingMeetingsCount,
+          isActive: isOnAprovacoes && currentTab === "reunioes",
+        },
+        {
+          to: "/admin/aprovacoes",
+          search: { tab: "capacitacoes" },
+          label: "Capacitações UNI",
+          icon: GraduationCap,
+          count: pendingTrainingsCount,
+          isActive: isOnAprovacoes && currentTab === "capacitacoes",
+        },
+        {
+          to: "/admin/aprovacoes",
+          search: { tab: "staff" },
+          label: "Staff em Eventos",
+          icon: HandHelping,
+          count: pendingStaffCount,
+          isActive: isOnAprovacoes && currentTab === "staff",
+        },
+        {
+          to: "/admin/aprovacoes",
+          search: { tab: "oficinas" },
+          label: "Oficinas de Equipes",
+          icon: Lightbulb,
+          count: pendingWorkshopsCount,
+          isActive: isOnAprovacoes && currentTab === "oficinas",
+        },
+        {
+          to: "/admin/aprovacoes",
+          search: { tab: "reservas" },
+          label: "Reservas de Sala",
+          icon: DoorOpen,
+          count: pendingResCount,
+          isActive: isOnAprovacoes && currentTab === "reservas",
+        },
+        {
+          to: "/admin/aprovacoes",
+          search: { tab: "beneficios-cadastros" },
+          label: "Benefícios & Cadastros",
+          icon: Gift,
+          count: pendingBenefitsAndLeadersCount,
+          isActive: isOnAprovacoes && currentTab === "beneficios-cadastros",
+        },
+      ],
+    },
+    { to: "/admin/reunioes", label: "Reuniões Liga UNI", icon: Megaphone },
+    { to: "/admin/capacitacoes", label: "Capacitações & Staff", icon: GraduationCap },
+    { to: "/admin/reservas", label: "Salas & Reservas", icon: DoorOpen, count: pendingResCount },
+    { to: "/admin/entidades", label: "Entidades", icon: Building2, count: pendingReqCount },
     { to: "/admin/calendario", label: "Calendário", icon: CalendarDays },
-    { to: "/admin/reservas", label: "Reservas", icon: ClipboardCheck, count: pendingResCount },
-    { to: "/admin/salas", label: "Salas", icon: DoorOpen },
+    { to: "/admin/chamados", label: "Chamados", icon: MessageSquare, count: pendingMsgsCount },
   ];
 
   return (
-    <AppShell nav={nav} badge="Administrador" subtitle="Gestão do Ágora">
+    <AppShell nav={nav} badge="Administrador" subtitle="Gestão do Ágora" guideTo="/admin/guia">
       <Outlet />
     </AppShell>
   );

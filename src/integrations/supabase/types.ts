@@ -8,8 +8,42 @@ export type Database = {
   };
   public: {
     Tables: {
+      admin_messages: {
+        Row: {
+          assunto: string;
+          created_at: string;
+          entity_id: string;
+          id: string;
+          mensagem: string;
+          resposta: string | null;
+          status: "pending" | "answered";
+          topico: string;
+        };
+        Insert: {
+          assunto: string;
+          created_at?: string;
+          entity_id: string;
+          id?: string;
+          mensagem: string;
+          resposta?: string | null;
+          status?: "pending" | "answered";
+          topico?: string;
+        };
+        Update: {
+          assunto?: string;
+          created_at?: string;
+          entity_id?: string;
+          id?: string;
+          mensagem?: string;
+          resposta?: string | null;
+          status?: "pending" | "answered";
+          topico?: string;
+        };
+        Relationships: [];
+      };
       entities: {
         Row: {
+          avisos_email?: boolean;
           created_at: string;
           descricao: string;
           id: string;
@@ -17,6 +51,7 @@ export type Database = {
           nome: string;
         };
         Insert: {
+          avisos_email?: boolean;
           created_at?: string;
           descricao?: string;
           id?: string;
@@ -24,6 +59,7 @@ export type Database = {
           nome: string;
         };
         Update: {
+          avisos_email?: boolean;
           created_at?: string;
           descricao?: string;
           id?: string;
@@ -81,6 +117,45 @@ export type Database = {
           },
         ];
       };
+      general_meetings: {
+        Row: {
+          ativa: boolean;
+          created_at: string;
+          fim: string;
+          id: string;
+          inicio: string;
+          local: string;
+          obrigatoria: boolean;
+          pauta: string;
+          pontos: number;
+          titulo: string;
+        };
+        Insert: {
+          ativa?: boolean;
+          created_at?: string;
+          fim: string;
+          id?: string;
+          inicio: string;
+          local?: string;
+          obrigatoria?: boolean;
+          pauta?: string;
+          pontos?: number;
+          titulo: string;
+        };
+        Update: {
+          ativa?: boolean;
+          created_at?: string;
+          fim?: string;
+          id?: string;
+          inicio?: string;
+          local?: string;
+          obrigatoria?: boolean;
+          pauta?: string;
+          pontos?: number;
+          titulo?: string;
+        };
+        Relationships: [];
+      };
       leader_requests: {
         Row: {
           admin_note: string | null
@@ -120,6 +195,36 @@ export type Database = {
         }
         Relationships: []
       }
+      meeting_attendances: {
+        Row: {
+          created_at: string;
+          entity_id: string;
+          id: string;
+          meeting_id: string;
+          moedas_liberadas: boolean;
+          presente: boolean;
+          representantes: string;
+        };
+        Insert: {
+          created_at?: string;
+          entity_id: string;
+          id?: string;
+          meeting_id: string;
+          moedas_liberadas?: boolean;
+          presente?: boolean;
+          representantes: string;
+        };
+        Update: {
+          created_at?: string;
+          entity_id?: string;
+          id?: string;
+          meeting_id?: string;
+          moedas_liberadas?: boolean;
+          presente?: boolean;
+          representantes?: string;
+        };
+        Relationships: [];
+      };
       members: {
         Row: {
           created_at: string;
@@ -155,6 +260,54 @@ export type Database = {
           },
         ];
       };
+      peer_workshops: {
+        Row: {
+          created_at: string;
+          data_sugerida: string;
+          descricao: string;
+          em_conjunto?: boolean;
+          entity_id: string;
+          fim?: string;
+          id: string;
+          ministrantes: string;
+          moedas_liberadas: boolean;
+          partner_entity_id?: string | null;
+          room_id?: string | null;
+          status: Database["public"]["Enums"]["reservation_status"];
+          titulo: string;
+        };
+        Insert: {
+          created_at?: string;
+          data_sugerida?: string;
+          descricao?: string;
+          em_conjunto?: boolean;
+          entity_id: string;
+          fim?: string;
+          id?: string;
+          ministrantes?: string;
+          moedas_liberadas?: boolean;
+          partner_entity_id?: string | null;
+          room_id?: string | null;
+          status?: Database["public"]["Enums"]["reservation_status"];
+          titulo: string;
+        };
+        Update: {
+          created_at?: string;
+          data_sugerida?: string;
+          descricao?: string;
+          em_conjunto?: boolean;
+          entity_id?: string;
+          fim?: string;
+          id?: string;
+          ministrantes?: string;
+          moedas_liberadas?: boolean;
+          partner_entity_id?: string | null;
+          room_id?: string | null;
+          status?: Database["public"]["Enums"]["reservation_status"];
+          titulo?: string;
+        };
+        Relationships: [];
+      };
       profiles: {
         Row: {
           created_at: string;
@@ -186,6 +339,7 @@ export type Database = {
           id: string;
           inicio: string;
           motivo: string;
+          purpose: "reuniao_projeto" | "capacitacao_geral";
           requested_by: string;
           room_id: string;
           status: Database["public"]["Enums"]["reservation_status"];
@@ -199,6 +353,7 @@ export type Database = {
           id?: string;
           inicio: string;
           motivo?: string;
+          purpose?: "reuniao_projeto" | "capacitacao_geral";
           requested_by: string;
           room_id: string;
           status?: Database["public"]["Enums"]["reservation_status"];
@@ -212,6 +367,7 @@ export type Database = {
           id?: string;
           inicio?: string;
           motivo?: string;
+          purpose?: "reuniao_projeto" | "capacitacao_geral";
           requested_by?: string;
           room_id?: string;
           status?: Database["public"]["Enums"]["reservation_status"];
@@ -247,6 +403,39 @@ export type Database = {
           },
         ];
       };
+      reward_redemptions: {
+        Row: {
+          created_at: string;
+          custo: number;
+          entity_id: string;
+          id: string;
+          observacao: string;
+          recompensa_id: string;
+          recompensa_titulo: string;
+          status: Database["public"]["Enums"]["reservation_status"];
+        };
+        Insert: {
+          created_at?: string;
+          custo: number;
+          entity_id: string;
+          id?: string;
+          observacao?: string;
+          recompensa_id: string;
+          recompensa_titulo: string;
+          status?: Database["public"]["Enums"]["reservation_status"];
+        };
+        Update: {
+          created_at?: string;
+          custo?: number;
+          entity_id?: string;
+          id?: string;
+          observacao?: string;
+          recompensa_id?: string;
+          recompensa_titulo?: string;
+          status?: Database["public"]["Enums"]["reservation_status"];
+        };
+        Relationships: [];
+      };
       rooms: {
         Row: {
           ativa: boolean;
@@ -271,6 +460,138 @@ export type Database = {
           descricao?: string;
           id?: string;
           nome?: string;
+        };
+        Relationships: [];
+      };
+      staff_calls: {
+        Row: {
+          ativa: boolean;
+          created_at: string;
+          descricao: string;
+          evento: string;
+          fim: string;
+          id: string;
+          inicio: string;
+          local: string;
+          vagas: number;
+        };
+        Insert: {
+          ativa?: boolean;
+          created_at?: string;
+          descricao?: string;
+          evento: string;
+          fim: string;
+          id?: string;
+          inicio: string;
+          local?: string;
+          vagas?: number;
+        };
+        Update: {
+          ativa?: boolean;
+          created_at?: string;
+          descricao?: string;
+          evento?: string;
+          fim?: string;
+          id?: string;
+          inicio?: string;
+          local?: string;
+          vagas?: number;
+        };
+        Relationships: [];
+      };
+      staff_volunteers: {
+        Row: {
+          call_id: string;
+          created_at: string;
+          entity_id: string;
+          id: string;
+          moedas_liberadas: boolean;
+          observacao: string;
+          participantes: string;
+        };
+        Insert: {
+          call_id: string;
+          created_at?: string;
+          entity_id: string;
+          id?: string;
+          moedas_liberadas?: boolean;
+          observacao?: string;
+          participantes: string;
+        };
+        Update: {
+          call_id?: string;
+          created_at?: string;
+          entity_id?: string;
+          id?: string;
+          moedas_liberadas?: boolean;
+          observacao?: string;
+          participantes?: string;
+        };
+        Relationships: [];
+      };
+      training_registrations: {
+        Row: {
+          created_at: string;
+          entity_id: string;
+          id: string;
+          moedas_liberadas: boolean;
+          participantes: string;
+          training_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          entity_id: string;
+          id?: string;
+          moedas_liberadas?: boolean;
+          participantes: string;
+          training_id: string;
+        };
+        Update: {
+          created_at?: string;
+          entity_id?: string;
+          id?: string;
+          moedas_liberadas?: boolean;
+          participantes?: string;
+          training_id?: string;
+        };
+        Relationships: [];
+      };
+      trainings: {
+        Row: {
+          ativa: boolean;
+          created_at: string;
+          descricao: string;
+          fim: string;
+          id: string;
+          inicio: string;
+          local: string;
+          ministrante: string;
+          titulo: string;
+          vagas: number;
+        };
+        Insert: {
+          ativa?: boolean;
+          created_at?: string;
+          descricao?: string;
+          fim: string;
+          id?: string;
+          inicio: string;
+          local?: string;
+          ministrante?: string;
+          titulo: string;
+          vagas?: number;
+        };
+        Update: {
+          ativa?: boolean;
+          created_at?: string;
+          descricao?: string;
+          fim?: string;
+          id?: string;
+          inicio?: string;
+          local?: string;
+          ministrante?: string;
+          titulo?: string;
+          vagas?: number;
         };
         Relationships: [];
       };

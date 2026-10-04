@@ -1,6 +1,7 @@
 import { createFileRoute, Link, redirect, useNavigate } from "@tanstack/react-router";
+import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { CheckCircle2, ShieldCheck, UserCheck } from "lucide-react";
+import { ArrowDownRight, CheckCircle2, KeyRound, ShieldCheck, UserCheck } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { authErrMsg, errMsg, getMyRole } from "@/lib/auth";
@@ -11,6 +12,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 export const Route = createFileRoute("/auth")({
   ssr: false,
@@ -48,9 +56,11 @@ export const Route = createFileRoute("/auth")({
 
 function AuthPage() {
   const navigate = useNavigate();
+  const qc = useQueryClient();
   const [tab, setTab] = useState<"entrar" | "cadastrar">("entrar");
   const [loading, setLoading] = useState(false);
   const [submittedPending, setSubmittedPending] = useState(false);
+  const [demoModalOpen, setDemoModalOpen] = useState(false);
 
   // Campos de login e cadastro
   const [nome, setNome] = useState("");
@@ -64,6 +74,8 @@ function AuthPage() {
 
   const routeByUser = async (userId: string) => {
     try {
+      await qc.cancelQueries();
+      qc.clear();
       const role = await getMyRole(userId);
       navigate({ to: role === "admin" ? "/admin" : "/lider", replace: true });
     } catch (e) {
@@ -121,6 +133,7 @@ function AuthPage() {
       toast.error(authErrMsg(error));
       return;
     }
+    setDemoModalOpen(false);
     toast.success(
       targetEmail === DEMO_ADMIN_EMAIL
         ? "Acesso de Administrador liberado!"
@@ -130,7 +143,68 @@ function AuthPage() {
   };
 
   return (
-    <div className="grid min-h-screen md:grid-cols-2">
+    <div className="relative grid min-h-screen md:grid-cols-2">
+      {/* Ícone no canto com seta e texto indicando acesso rápido de demonstração */}
+      {showDemo && (
+        <Dialog open={demoModalOpen} onOpenChange={setDemoModalOpen}>
+          <DialogTrigger asChild>
+            <button
+              type="button"
+              title="Acesso rápido de demonstração"
+              aria-label="Acesso rápido de demonstração"
+              className="group fixed bottom-4 right-4 z-40 flex items-center gap-2 rounded-full border border-primary/30 bg-card/90 py-1.5 pl-3 pr-2 text-xs font-medium text-muted-foreground shadow-card backdrop-blur-xs transition hover:border-primary hover:bg-card hover:text-primary"
+            >
+              <span>Clique aqui para demonstrações</span>
+              <ArrowDownRight className="h-3.5 w-3.5 text-primary transition group-hover:translate-x-0.5 group-hover:translate-y-0.5" />
+              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/15 text-primary">
+                <KeyRound className="h-3.5 w-3.5" />
+              </span>
+            </button>
+          </DialogTrigger>
+          <DialogContent className="max-w-sm">
+            <DialogHeader>
+              <DialogTitle>Acesso Rápido (Demonstração)</DialogTitle>
+            </DialogHeader>
+            <p className="text-xs text-muted-foreground">
+              Escolha um perfil abaixo para entrar diretamente no portal como <b>Líder de Equipe</b>{" "}
+              ou como <b>Administrador do Ágora</b>:
+            </p>
+            <div className="mt-2 grid gap-2.5">
+              <Button
+                type="button"
+                variant="default"
+                className="h-auto w-full flex-col items-start gap-0.5 py-2.5 text-left"
+                disabled={loading}
+                onClick={() => signInDemo(DEMO_LEADER_EMAIL)}
+              >
+                <span className="flex items-center font-semibold">
+                  <UserCheck className="mr-2 h-4 w-4" />
+                  Entrar como Líder — GERM (UDESC)
+                </span>
+                <span className="pl-6 text-[11px] font-normal opacity-85">
+                  {DEMO_LEADER_EMAIL} · Painel da Entidade & LigaCoins
+                </span>
+              </Button>
+              <Button
+                type="button"
+                variant="secondary"
+                className="h-auto w-full flex-col items-start gap-0.5 border py-2.5 text-left"
+                disabled={loading}
+                onClick={() => signInDemo(DEMO_ADMIN_EMAIL)}
+              >
+                <span className="flex items-center font-semibold">
+                  <ShieldCheck className="mr-2 h-4 w-4 text-primary" />
+                  Entrar como Administrador do Ágora
+                </span>
+                <span className="pl-6 text-[11px] font-normal text-muted-foreground">
+                  {DEMO_ADMIN_EMAIL} · Central de Aprovações & Gestão
+                </span>
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
+
       <div className="hidden bg-hero p-12 text-primary-foreground md:flex md:flex-col md:justify-between">
         <Link to="/sobre" className="font-display text-xl font-bold">
           Liga <span className="text-accent">UNI</span>
@@ -141,8 +215,8 @@ function AuthPage() {
           </h2>
           <p className="max-w-md text-sm leading-relaxed opacity-85">
             O Liga UNI une o programa voluntário Liga Ágora aos projetos universitários em
-            Joinville, promovendo capacitações, eventos, hackathons, convívio entre equipes e uso
-            integrado das salas do Ágora.
+            Joinville, promovendo Reuniões Liga UNI, Capacitações, Auxílio de Staff em eventos,
+            Oficinas entre equipes e uso integrado das salas com LigaCoins.
           </p>
         </div>
         <div className="flex items-center justify-between text-sm opacity-80">
@@ -155,56 +229,25 @@ function AuthPage() {
       <div className="flex items-center justify-center p-6">
         <div className="w-full max-w-md">
           <h1 className="text-2xl font-bold">Bem-vindo ao Liga UNI</h1>
-          <p className="mb-4 text-sm text-muted-foreground">
-            Entre ou solicite o cadastro do seu projeto universitário para aprovação do Ágora.
+          <p className="mb-6 text-sm text-muted-foreground">
+            Acesse com sua conta de <b>Líder de Entidade</b> ou <b>Administrador do Ágora</b>, ou
+            solicite o cadastro de um novo projeto universitário.
           </p>
-
-          {showDemo && (
-            <div className="mb-6 rounded-xl border-2 border-primary/20 bg-primary/5 p-4">
-              <p className="mb-1 text-xs font-bold uppercase tracking-wider text-primary">
-                Acesso rápido (apenas para testes)
-              </p>
-              <p className="mb-3 text-xs text-muted-foreground">
-                Clique em um botão abaixo para entrar direto sem precisar digitar senha:
-              </p>
-              <div className="grid gap-2">
-                <Button
-                  type="button"
-                  variant="default"
-                  className="w-full justify-start"
-                  disabled={loading}
-                  onClick={() => signInDemo(DEMO_LEADER_EMAIL)}
-                >
-                  <UserCheck className="mr-2 h-4 w-4" />
-                  Entrar como Líder — GERM UDESC (teste)
-                </Button>
-                <Button
-                  type="button"
-                  variant="secondary"
-                  className="w-full justify-start border"
-                  disabled={loading}
-                  onClick={() => signInDemo(DEMO_ADMIN_EMAIL)}
-                >
-                  <ShieldCheck className="mr-2 h-4 w-4" />
-                  Entrar como Administrador (teste)
-                </Button>
-              </div>
-            </div>
-          )}
 
           <Tabs value={tab} onValueChange={(v) => setTab(v as "entrar" | "cadastrar")}>
             <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="entrar">Entrar</TabsTrigger>
+              <TabsTrigger value="entrar">Entrar (Líder / Admin)</TabsTrigger>
               <TabsTrigger value="cadastrar" onClick={() => setSubmittedPending(false)}>
-                Solicitar cadastro
+                Novo projeto (Líder)
               </TabsTrigger>
             </TabsList>
             <TabsContent value="entrar">
               <form onSubmit={signIn} className="mt-4 space-y-4">
-                <Field label="E-mail">
+                <Field label="E-mail institucional ou de acesso">
                   <Input
                     type="email"
                     required
+                    placeholder="lider@universidade.edu.br ou admin@agora.tech"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                   />
@@ -217,9 +260,13 @@ function AuthPage() {
                     onChange={(e) => setSenha(e.target.value)}
                   />
                 </Field>
-                <Button className="w-full" variant="outline" disabled={loading}>
-                  Entrar com e-mail
+                <Button className="w-full" disabled={loading}>
+                  Entrar no portal
                 </Button>
+                <p className="text-center text-[11px] text-muted-foreground">
+                  O sistema identifica automaticamente se seu perfil é de <b>Líder de Equipe</b> ou{" "}
+                  <b>Administrador</b>.
+                </p>
               </form>
             </TabsContent>
             <TabsContent value="cadastrar">
@@ -279,7 +326,7 @@ function AuthPage() {
                     <Field label="Faculdade / Universidade">
                       <Input
                         required
-                        placeholder="Ex.: UDESC Joinville, UFSC..."
+                        placeholder="Nome da sua instituição de ensino"
                         value={faculdade}
                         onChange={(e) => setFaculdade(e.target.value)}
                       />
@@ -287,7 +334,7 @@ function AuthPage() {
                     <Field label="Nome do projeto / entidade">
                       <Input
                         required
-                        placeholder="Ex.: GERM, Fórmula CEM..."
+                        placeholder="Ex.: Equipe de Robótica, Baja..."
                         value={projeto}
                         onChange={(e) => setProjeto(e.target.value)}
                       />

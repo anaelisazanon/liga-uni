@@ -139,3 +139,29 @@
 @utility bg-hero {
   background-image: var(--gradient-hero);
 }
+
+input[type="datetime-local"],
+input[type="date"],
+input[type="time"] {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-width: 0;
+  width: 100%;
+}
+
+input[type="datetime-local"]::-webkit-calendar-picker-indicator,
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-calendar-picker-indicator {
+  flex-shrink: 0;
+  cursor: pointer;
+  margin-left: 0.35rem;
+  padding: 0.15rem;
+  opacity: 0.75;
+}
+
+input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover,
+input[type="date"]::-webkit-calendar-picker-indicator:hover,
+input[type="time"]::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+}

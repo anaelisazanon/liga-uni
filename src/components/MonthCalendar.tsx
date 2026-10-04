@@ -1,19 +1,78 @@
 import { useState } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { CheckCircle2, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+
+export type CalItemTone =
+  | "event"
+  | "reservation"
+  | "reuniao_uni"
+  | "capacitacao"
+  | "staff"
+  | "oficina";
 
 export type CalItem = {
   id: string;
   title: string;
   start: string;
   end?: string;
-  tone?: "event" | "reservation";
   sub?: string;
-  description?: string;
   location?: string;
+  description?: string;
+  tone?: CalItemTone;
+  enrolled?: boolean;
 };
 
 const WEEK = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+const MONTHS = [
+  "Janeiro",
+  "Fevereiro",
+  "Março",
+  "Abril",
+  "Maio",
+  "Junho",
+  "Julho",
+  "Agosto",
+  "Setembro",
+  "Outubro",
+  "Novembro",
+  "Dezembro",
+];
+
+function toneClasses(tone?: CalItemTone, enrolled?: boolean): string {
+  const base = enrolled ? "ring-1 ring-primary/50 font-semibold " : "";
+  switch (tone) {
+    case "reuniao_uni":
+      return (
+        base +
+        "bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/30 hover:bg-amber-500/25"
+      );
+    case "capacitacao":
+      return (
+        base +
+        "bg-primary/15 text-primary border border-primary/25 hover:bg-primary/25"
+      );
+    case "staff":
+      return (
+        base +
+        "bg-accent/25 text-accent-foreground border border-accent/40 hover:bg-accent/35"
+      );
+    case "oficina":
+      return (
+        base +
+        "bg-success/15 text-success border border-success/30 hover:bg-success/25"
+      );
+    case "reservation":
+      return (
+        base +
+        "bg-secondary text-secondary-foreground border border-border hover:bg-muted"
+      );
+    default:
+      return (
+        base +
+        "bg-primary/12 text-primary border border-primary/20 hover:bg-primary/20"
+      );
+  }
+}
 
 export function MonthCalendar({
   items,
@@ -22,171 +81,119 @@ export function MonthCalendar({
   items: CalItem[];
   onItemClick?: (id: string) => void;
 }) {
-  const [cursor, setCursor] = useState(() => {
+  const [cur, setCur] = useState(() => {
     const d = new Date();
     return new Date(d.getFullYear(), d.getMonth(), 1);
   });
-  const year = cursor.getFullYear();
-  const month = cursor.getMonth();
-  const first = new Date(year, month, 1).getDay();
-  const days = new Date(year, month + 1, 0).getDate();
+
+  const year = cur.getFullYear();
+  const month = cur.getMonth();
+  const firstDow = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
   const cells: (number | null)[] = [
-    ...Array(first).fill(null),
-    ...Array.from({ length: days }, (_, i) => i + 1),
+    ...Array.from({ length: firstDow }, () => null),
+    ...Array.from({ length: daysInMonth }, (_, i) => i + 1),
   ];
   while (cells.length % 7) cells.push(null);
+
   const today = new Date();
+  const isToday = (d: number) =>
+    d === today.getDate() && month === today.getMonth() && year === today.getFullYear();
 
-  const byDay = (d: number) => {
-    const dayStart = new Date(year, month, d, 0, 0, 0, 0);
-    const dayEnd = new Date(year, month, d, 23, 59, 59, 999);
-    return items
-      .filter((it) => {
-        const s = new Date(it.start);
-        const e = it.end ? new Date(it.end) : s;
-        return s <= dayEnd && e >= dayStart;
-      })
-      .sort((a, b) => a.start.localeCompare(b.start));
+  const itemsOn = (day: number) => {
+    const start = new Date(year, month, day, 0, 0, 0).getTime();
+    const end = new Date(year, month, day, 23, 59, 59).getTime();
+    return items.filter((it) => {
+      const s = new Date(it.start).getTime();
+      const e = it.end ? new Date(it.end).getTime() : s;
+      return s <= end && e >= start;
+    });
   };
-
-  const daysWithItems = Array.from({ length: days }, (_, i) => i + 1)
-    .map((d) => ({ day: d, list: byDay(d) }))
-    .filter((entry) => entry.list.length > 0);
 
   return (
     <div className="rounded-xl border bg-card shadow-card">
-      <div className="flex items-center justify-between border-b px-4 py-3">
-        <div className="flex items-center gap-1">
+      <div className="flex items-center justify-between border-b px-5 py-3.5">
+        <div className="font-display text-lg font-bold">
+          {MONTHS[month]} {year}
+        </div>
+        <div className="flex gap-1">
           <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setCursor(new Date(year, month - 1, 1))}
+            size="sm"
+            variant="outline"
+            onClick={() => setCur(new Date(year, month - 1, 1))}
           >
-            <ChevronLeft />
+            <ChevronLeft className="h-4 w-4" />
           </Button>
           <Button
-            variant="outline"
             size="sm"
+            variant="outline"
             onClick={() => {
-              const now = new Date();
-              setCursor(new Date(now.getFullYear(), now.getMonth(), 1));
+              const d = new Date();
+              setCur(new Date(d.getFullYear(), d.getMonth(), 1));
             }}
           >
             Hoje
           </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => setCur(new Date(year, month + 1, 1))}
+          >
+            <ChevronRight className="h-4 w-4" />
+          </Button>
         </div>
-        <h3 className="text-lg font-semibold capitalize">
-          {cursor.toLocaleDateString("pt-BR", { month: "long", year: "numeric" })}
-        </h3>
-        <Button variant="ghost" size="icon" onClick={() => setCursor(new Date(year, month + 1, 1))}>
-          <ChevronRight />
-        </Button>
       </div>
-
-      {/* Lista agrupada por dia no celular */}
-      <div className="divide-y md:hidden">
-        {daysWithItems.length === 0 ? (
-          <div className="p-6 text-center text-sm text-muted-foreground">
-            Nenhuma atividade neste mês.
+      <div className="grid grid-cols-7 border-b bg-muted/40 text-center text-xs font-medium text-muted-foreground">
+        {WEEK.map((w) => (
+          <div key={w} className="py-2">
+            {w}
           </div>
-        ) : (
-          daysWithItems.map(({ day, list }) => {
-            const dateObj = new Date(year, month, day);
-            const isToday =
-              today.getFullYear() === year && today.getMonth() === month && today.getDate() === day;
-            return (
-              <div key={day} className="p-4">
-                <div className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                  <span
-                    className={`inline-flex h-6 w-6 items-center justify-center rounded-full ${
-                      isToday ? "bg-primary text-primary-foreground" : "bg-muted text-foreground"
-                    }`}
-                  >
-                    {day}
-                  </span>
-                  <span>{dateObj.toLocaleDateString("pt-BR", { weekday: "long" })}</span>
-                </div>
-                <div className="space-y-1.5">
-                  {list.map((it) => (
-                    <button
-                      key={`${day}-${it.id}`}
-                      onClick={() => onItemClick?.(it.id)}
-                      className={`block w-full rounded-lg px-3 py-2 text-left text-xs ${
-                        it.tone === "reservation"
-                          ? "bg-accent/30 text-accent-foreground"
-                          : "bg-primary/10 text-primary"
-                      }`}
-                    >
-                      <div className="font-semibold">
-                        {new Date(it.start).toLocaleTimeString("pt-BR", {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}{" "}
-                        · {it.title}
-                      </div>
-                      {it.sub && <div className="mt-0.5 opacity-80">{it.sub}</div>}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            );
-          })
-        )}
+        ))}
       </div>
-
-      {/* Grade de 7 colunas em telas médias e grandes */}
-      <div className="hidden md:block">
-        <div className="grid grid-cols-7 border-b text-center text-xs font-medium text-muted-foreground">
-          {WEEK.map((w) => (
-            <div key={w} className="py-2">
-              {w}
-            </div>
-          ))}
-        </div>
-        <div className="grid grid-cols-7">
-          {cells.map((d, i) => {
-            const isToday =
-              d &&
-              today.getFullYear() === year &&
-              today.getMonth() === month &&
-              today.getDate() === d;
-            return (
-              <div key={i} className="min-h-24 border-b border-r p-1.5 text-xs">
-                {d && (
-                  <>
-                    <div
-                      className={`mb-1 inline-flex h-6 w-6 items-center justify-center rounded-full ${
-                        isToday ? "bg-primary text-primary-foreground" : ""
-                      }`}
+      <div className="grid grid-cols-7">
+        {cells.map((d, idx) => (
+          <div
+            key={idx}
+            className="min-h-28 border-b border-r p-1.5 text-xs last:border-r-0 [&:nth-child(7n)]:border-r-0"
+          >
+            {d && (
+              <>
+                <div
+                  className={`mb-1 inline-flex h-6 w-6 items-center justify-center rounded-full font-medium ${
+                    isToday(d) ? "bg-primary text-primary-foreground" : "text-foreground/80"
+                  }`}
+                >
+                  {d}
+                </div>
+                <div className="space-y-1">
+                  {itemsOn(d).map((it) => (
+                    <button
+                      key={it.id}
+                      type="button"
+                      onClick={() => onItemClick?.(it.id)}
+                      className={`block w-full truncate rounded px-1.5 py-0.5 text-left text-[11px] leading-tight transition ${toneClasses(
+                        it.tone,
+                        it.enrolled,
+                      )}`}
+                      title={`${it.title}${it.sub ? ` — ${it.sub}` : ""}`}
                     >
-                      {d}
-                    </div>
-                    <div className="space-y-1">
-                      {byDay(d).map((it) => (
-                        <button
-                          key={`${d}-${it.id}`}
-                          onClick={() => onItemClick?.(it.id)}
-                          title={`${it.title}${it.sub ? " · " + it.sub : ""}`}
-                          className={`block w-full truncate rounded px-1.5 py-0.5 text-left ${
-                            it.tone === "reservation"
-                              ? "bg-accent/30 text-accent-foreground"
-                              : "bg-primary/10 text-primary"
-                          }`}
-                        >
+                      <span className="inline-flex items-center gap-1">
+                        {it.enrolled && <CheckCircle2 className="h-3 w-3 shrink-0 text-primary" />}
+                        <span className="font-medium">
                           {new Date(it.start).toLocaleTimeString("pt-BR", {
                             hour: "2-digit",
                             minute: "2-digit",
-                          })}{" "}
-                          {it.title}
-                        </button>
-                      ))}
-                    </div>
-                  </>
-                )}
-              </div>
-            );
-          })}
-        </div>
+                          })}
+                        </span>{" "}
+                        <span className="truncate">{it.title}</span>
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
+        ))}
       </div>
     </div>
   );
