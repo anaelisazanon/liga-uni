@@ -67,7 +67,6 @@ function AuthPage() {
   const [loading, setLoading] = useState(false);
   const [submittedPending, setSubmittedPending] = useState(false);
 
-  // Campos de login e cadastro
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
@@ -147,127 +146,120 @@ function AuthPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col justify-center items-center px-4 py-8">
-      <div className="w-full max-w-2xl space-y-6">
-        {/* Topo com Identidade Liga UNI */}
-        <div className="text-center space-y-1.5">
-          <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3.5 py-1 text-xs font-bold text-primary">
-            Liga UNI · Ágora Tech Park
+    <div className="min-h-screen grid lg:grid-cols-2 bg-background">
+      {/* Coluna lateral esquerda limpa e institucional (como era originalmente) */}
+      <div className="hidden lg:flex flex-col justify-between bg-gradient-hero text-primary-foreground p-12">
+        <div className="font-display text-2xl font-bold tracking-tight">
+          Liga <span className="text-accent">UNI</span> · Ágora Tech Park
+        </div>
+
+        <div className="space-y-4 max-w-md">
+          <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-medium">
+            Joinville · UDESC · UFSC · IFSC · Univille
           </div>
-          <h1 className="font-display text-3xl sm:text-4xl font-bold tracking-tight">
-            Portal Liga <span className="text-primary">UNI</span>
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            Acesse o painel da sua equipe universitária ou a administração do Ágora Tech Park
+          <h2 className="font-display text-3xl font-bold leading-tight">
+            Conectando projetos universitários ao ecossistema de inovação do Ágora.
+          </h2>
+          <p className="text-primary-foreground/80 text-sm leading-relaxed">
+            Gerencie sua equipe, agende salas e auditórios, acumule LigaCoins em capacitações,
+            oficinas e eventos de staff e troque por benefícios exclusivos.
           </p>
         </div>
 
-        {/* BLOCO GRANDE E CHAMATIVO NO TOPO: ACESSO RÁPIDO DE DEMONSTRAÇÃO */}
-        {showDemo && (
-          <div className="rounded-2xl border-2 border-primary bg-gradient-to-br from-primary/15 via-primary/5 to-accent/10 p-5 sm:p-6 shadow-card space-y-4">
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <div className="flex items-center gap-2">
-                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-xs">
-                  <Sparkles className="h-4 w-4" />
-                </span>
-                <div>
-                  <span className="text-[11px] font-extrabold uppercase tracking-wider text-primary">
-                    Acesso Rápido · 1 Clique
-                  </span>
-                  <h2 className="font-display text-lg sm:text-xl font-bold text-foreground leading-tight">
-                    Entrar no Modo Demonstração
-                  </h2>
-                </div>
-              </div>
-              <span className="rounded-full bg-primary px-3 py-1 text-xs font-bold text-primary-foreground">
-                Clique em um perfil abaixo para testar
-              </span>
+        <p className="text-xs text-primary-foreground/60">© {new Date().getFullYear()} Liga UNI</p>
+      </div>
+
+      {/* Coluna direita com Acesso Rápido de Demonstração no topo e Login limpo */}
+      <div className="flex flex-col justify-center px-6 py-10 sm:px-12">
+        <div className="mx-auto w-full max-w-md space-y-6">
+          <div>
+            <div className="lg:hidden mb-2 font-display text-xl font-bold text-foreground">
+              Liga <span className="text-primary">UNI</span> · Ágora Tech Park
             </div>
-
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              {/* Botão 1: Líder GERM */}
-              <button
-                type="button"
-                disabled={loading}
-                onClick={() => signInDemo(DEMO_LEADER_EMAIL)}
-                className="group flex flex-col justify-between rounded-xl border-2 border-primary bg-primary p-4 text-left text-primary-foreground shadow-sm transition hover:opacity-95 disabled:opacity-50"
-              >
-                <div className="flex items-center justify-between gap-2">
-                  <span className="inline-flex items-center gap-2 font-display text-base font-bold">
-                    <UserCheck className="h-5 w-5 shrink-0" />
-                    Líder — GERM (UDESC)
-                  </span>
-                  <ArrowRight className="h-4 w-4 shrink-0 transition group-hover:translate-x-1" />
-                </div>
-                <p className="mt-1.5 text-xs opacity-90">
-                  Entrar como líder do GERM · Atividades, Salas e LigaCoins
-                </p>
-              </button>
-
-              {/* Botão 2: Administrador */}
-              <button
-                type="button"
-                disabled={loading}
-                onClick={() => signInDemo(DEMO_ADMIN_EMAIL)}
-                className="group flex flex-col justify-between rounded-xl border-2 border-foreground/20 bg-card p-4 text-left text-foreground shadow-sm transition hover:border-primary hover:bg-secondary/60 disabled:opacity-50"
-              >
-                <div className="flex items-center justify-between gap-2">
-                  <span className="inline-flex items-center gap-2 font-display text-base font-bold text-primary">
-                    <ShieldCheck className="h-5 w-5 shrink-0" />
-                    Administrador do Ágora
-                  </span>
-                  <ArrowRight className="h-4 w-4 shrink-0 text-primary transition group-hover:translate-x-1" />
-                </div>
-                <p className="mt-1.5 text-xs text-muted-foreground">
-                  Central de Aprovações, Entidades e Alertas Semestrais
-                </p>
-              </button>
-            </div>
-
-            {/* Botão 3: Líder Fictício com Pendências Semestrais */}
-            <button
-              type="button"
-              disabled={loading}
-              onClick={() => signInDemo(DEMO_PENDING_LEADER_EMAIL)}
-              className="group flex w-full flex-col sm:flex-row sm:items-center justify-between gap-2 rounded-xl border-2 border-destructive/45 bg-destructive/10 px-4 py-3 text-left transition hover:border-destructive hover:bg-destructive/15 disabled:opacity-50"
-            >
-              <div className="flex items-center gap-2.5">
-                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-destructive text-destructive-foreground font-bold">
-                  <AlertTriangle className="h-4 w-4" />
-                </span>
-                <div>
-                  <div className="font-display text-sm font-bold text-destructive">
-                    Teste de Exigências Pendentes — Grupo Quasar (UDESC · Fictício)
-                  </div>
-                  <div className="text-xs text-muted-foreground">
-                    Simula equipe que cumpriu apenas 1/4 das exigências semestrais (gera alerta ! no
-                    Admin)
-                  </div>
-                </div>
-              </div>
-              <span className="inline-flex items-center gap-1 text-xs font-bold text-destructive shrink-0">
-                Testar perfil <ArrowRight className="h-3.5 w-3.5 transition group-hover:translate-x-1" />
-              </span>
-            </button>
+            <h1 className="font-display text-2xl font-bold">Acesse o Liga UNI</h1>
+            <p className="text-sm text-muted-foreground">
+              Entre com sua conta ou utilize o acesso rápido de demonstração abaixo
+            </p>
           </div>
-        )}
 
-        {/* Formulário tradicional de Login / Novo Cadastro */}
-        <div className="rounded-2xl border border-border bg-card p-6 sm:p-8 shadow-card">
+          {/* Acesso Rápido de Demonstração no topo, limpo e visível */}
+          {showDemo && (
+            <div className="rounded-xl border border-primary/30 bg-primary/5 p-4 space-y-3 shadow-xs">
+              <div className="flex items-center justify-between gap-2">
+                <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-primary">
+                  <Sparkles className="h-3.5 w-3.5" /> Acesso Rápido de Demonstração
+                </span>
+                <span className="text-[11px] font-medium text-muted-foreground">1 clique</span>
+              </div>
+
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                <button
+                  type="button"
+                  disabled={loading}
+                  onClick={() => signInDemo(DEMO_LEADER_EMAIL)}
+                  className="group flex items-center justify-between gap-2 rounded-lg bg-primary px-3.5 py-2.5 text-left text-primary-foreground shadow-2xs transition hover:opacity-95 disabled:opacity-50"
+                >
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-1.5 text-xs font-bold">
+                      <UserCheck className="h-3.5 w-3.5 shrink-0" />
+                      <span className="truncate">Líder — GERM</span>
+                    </div>
+                    <div className="text-[10px] opacity-85 truncate">UDESC Joinville</div>
+                  </div>
+                  <ArrowRight className="h-3.5 w-3.5 shrink-0 transition group-hover:translate-x-0.5" />
+                </button>
+
+                <button
+                  type="button"
+                  disabled={loading}
+                  onClick={() => signInDemo(DEMO_ADMIN_EMAIL)}
+                  className="group flex items-center justify-between gap-2 rounded-lg border border-border bg-card px-3.5 py-2.5 text-left text-foreground shadow-2xs transition hover:border-primary/50 hover:bg-secondary/60 disabled:opacity-50"
+                >
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-1.5 text-xs font-bold text-primary">
+                      <ShieldCheck className="h-3.5 w-3.5 shrink-0" />
+                      <span className="truncate">Administrador</span>
+                    </div>
+                    <div className="text-[10px] text-muted-foreground truncate">
+                      Gestão Ágora Tech Park
+                    </div>
+                  </div>
+                  <ArrowRight className="h-3.5 w-3.5 shrink-0 text-primary transition group-hover:translate-x-0.5" />
+                </button>
+              </div>
+
+              <button
+                type="button"
+                disabled={loading}
+                onClick={() => signInDemo(DEMO_PENDING_LEADER_EMAIL)}
+                className="group flex w-full items-center justify-between gap-2 rounded-lg border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-left text-xs transition hover:border-amber-500/70 hover:bg-amber-500/15 disabled:opacity-50"
+              >
+                <span className="inline-flex items-center gap-2 font-medium text-amber-800 dark:text-amber-300">
+                  <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-amber-600" />
+                  <span>
+                    Testar equipe c/ pendências: <b>Grupo Quasar (UDESC)</b>
+                  </span>
+                </span>
+                <ArrowRight className="h-3.5 w-3.5 shrink-0 text-amber-700 transition group-hover:translate-x-0.5" />
+              </button>
+            </div>
+          )}
+
           <Tabs value={tab} onValueChange={(v) => setTab(v as "entrar" | "cadastrar")}>
             <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="entrar">Entrar com E-mail e Senha</TabsTrigger>
+              <TabsTrigger value="entrar">Entrar</TabsTrigger>
               <TabsTrigger value="cadastrar" onClick={() => setSubmittedPending(false)}>
-                Solicitar Cadastro de Projeto
+                Novo cadastro
               </TabsTrigger>
             </TabsList>
+
             <TabsContent value="entrar">
               <form onSubmit={signIn} className="mt-4 space-y-4">
-                <Field label="E-mail institucional ou de acesso">
+                <Field label="E-mail">
                   <Input
                     type="email"
                     required
-                    placeholder="lider@universidade.edu.br ou admin@agora.tech"
+                    placeholder="lider@universidade.edu.br"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                   />
@@ -281,14 +273,11 @@ function AuthPage() {
                   />
                 </Field>
                 <Button className="w-full" disabled={loading}>
-                  Entrar no portal
+                  Entrar
                 </Button>
-                <p className="text-center text-[11px] text-muted-foreground">
-                  O sistema identifica automaticamente se seu perfil é de <b>Líder de Equipe</b> ou{" "}
-                  <b>Administrador</b>.
-                </p>
               </form>
             </TabsContent>
+
             <TabsContent value="cadastrar">
               {submittedPending ? (
                 <div className="mt-4 rounded-xl border bg-card p-6 text-center shadow-card">

@@ -1,11 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import {
-  AlertTriangle,
   ArrowRight,
   BookOpen,
   CalendarDays,
-  CheckCircle2,
   Clock,
   Coins,
   DoorOpen,
@@ -14,7 +12,6 @@ import {
   HandHelping,
   Lightbulb,
   Megaphone,
-  RefreshCw,
   Users,
   type LucideIcon,
 } from "lucide-react";
@@ -26,7 +23,6 @@ import {
   calcStaffCoins,
   calcTrainingCoins,
   calcWorkshopCoins,
-  calculateSemesterRequirements,
   countParticipants,
   CREDITS_COST_ROOM,
   eventsQuery,
@@ -63,13 +59,6 @@ type RecentRequestItem = {
   search?: { tab?: string };
 };
 
-const reqIconMap = {
-  reunioes: Megaphone,
-  staff: HandHelping,
-  capacitacoes: GraduationCap,
-  oficinas: Lightbulb,
-} as const;
-
 function LiderHome() {
   const { user } = Route.useRouteContext();
   const { data: entity, isLoading } = useQuery(myEntityQuery(user.id));
@@ -93,15 +82,6 @@ function LiderHome() {
 
   const membersCount = members.data?.length ?? 0;
   const upcomingCount = (events.data ?? []).filter((e) => new Date(e.fim) >= new Date()).length;
-
-  const semesterReqs = calculateSemesterRequirements({
-    entityId: entity.id,
-    generalMeetings: meetings.data ?? [],
-    meetingAttendances: myAttendances.data ?? [],
-    staffVolunteers: myStaffVols.data ?? [],
-    trainingRegistrations: myTrainingRegs.data ?? [],
-    peerWorkshops: myWorkshops.data ?? [],
-  });
 
   const roomName = (rid: string) =>
     (rooms.data ?? []).find((r) => r.id === rid)?.nome ?? "Sala do Ágora";
@@ -248,144 +228,6 @@ function LiderHome() {
           </Button>
         }
       />
-
-      {/* Painel Visual de Exigências Semestrais para Continuar na Liga UNI */}
-      <div
-        className={
-          semesterReqs.isCompliant
-            ? "mb-6 rounded-2xl border-2 border-success/40 bg-success/5 p-5 shadow-card"
-            : "mb-6 rounded-2xl border-2 border-destructive/40 bg-destructive/5 p-5 shadow-card"
-        }
-      >
-        <div className="flex flex-wrap items-start justify-between gap-4 border-b border-border/70 pb-4">
-          <div className="space-y-1">
-            <div className="flex flex-wrap items-center gap-2">
-              <span
-                className={
-                  semesterReqs.isCompliant
-                    ? "inline-flex items-center gap-1.5 rounded-full bg-success/15 px-3 py-0.5 text-xs font-bold text-success"
-                    : "inline-flex items-center gap-1.5 rounded-full bg-destructive/15 px-3 py-0.5 text-xs font-bold text-destructive"
-                }
-              >
-                {semesterReqs.isCompliant ? (
-                  <CheckCircle2 className="h-3.5 w-3.5" />
-                ) : (
-                  <AlertTriangle className="h-3.5 w-3.5" />
-                )}
-                {semesterReqs.fulfilledCount}/{semesterReqs.totalRequirements} exigências
-                semestrais cumpridas
-              </span>
-              <span className="inline-flex items-center gap-1 rounded-full bg-secondary px-2.5 py-0.5 text-[11px] font-medium text-muted-foreground">
-                <RefreshCw className="h-3 w-3" /> Semestre {semesterReqs.semesterLabel} · Renova
-                todo semestre
-              </span>
-            </div>
-            <h2 className="font-display text-lg font-bold text-foreground">
-              Exigências Semestrais de Permanência na Liga UNI
-            </h2>
-            <p className="text-xs text-muted-foreground">
-              {semesterReqs.isCompliant
-                ? "Parabéns! Sua equipe já cumpriu todas as metas obrigatórias deste semestre."
-                : `Atenção: falta(m) ${semesterReqs.missingRequirementsCount} exigência(s) para garantir a permanência da equipe no semestre. Caso não sejam atendidas até o fim do semestre, a coordenação recebe um alerta (!).`}
-            </p>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <div className="text-right">
-              <div className="text-xs font-semibold text-muted-foreground">Progresso Semestral</div>
-              <div
-                className={
-                  semesterReqs.isCompliant
-                    ? "font-display text-xl font-bold text-success"
-                    : "font-display text-xl font-bold text-destructive"
-                }
-              >
-                {Math.round(
-                  (semesterReqs.fulfilledCount / semesterReqs.totalRequirements) * 100,
-                )}
-                %
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {semesterReqs.items.map((item) => {
-            const Icon = reqIconMap[item.key];
-            const pct = Math.min(100, Math.round((item.current / item.target) * 100));
-            return (
-              <div
-                key={item.key}
-                className={
-                  item.fulfilled
-                    ? "flex flex-col justify-between rounded-xl border border-success/40 bg-card p-4 shadow-xs"
-                    : "flex flex-col justify-between rounded-xl border-2 border-destructive/35 bg-card p-4 shadow-xs"
-                }
-              >
-                <div>
-                  <div className="flex items-center justify-between gap-2">
-                    <div
-                      className={
-                        item.fulfilled
-                          ? "flex h-8 w-8 items-center justify-center rounded-lg bg-success/15 text-success"
-                          : "flex h-8 w-8 items-center justify-center rounded-lg bg-destructive/15 text-destructive"
-                      }
-                    >
-                      <Icon className="h-4 w-4" />
-                    </div>
-                    <span
-                      className={
-                        item.fulfilled
-                          ? "inline-flex items-center gap-1 rounded-full bg-success/15 px-2.5 py-0.5 text-[11px] font-bold text-success"
-                          : "inline-flex items-center gap-1 rounded-full bg-destructive/15 px-2.5 py-0.5 text-[11px] font-bold text-destructive"
-                      }
-                    >
-                      {item.fulfilled ? "✓ Cumprida" : item.statusText}
-                    </span>
-                  </div>
-
-                  <h3 className="mt-3 font-display text-sm font-bold text-foreground">
-                    {item.title}
-                  </h3>
-                  <p className="mt-0.5 text-[11px] text-muted-foreground leading-snug">
-                    {item.ruleDescription}
-                  </p>
-                </div>
-
-                <div className="mt-4 space-y-2 pt-2 border-t border-border/60">
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="text-muted-foreground">Realizado no semestre:</span>
-                    <span className="font-bold text-foreground">
-                      {item.current} / {item.target}
-                    </span>
-                  </div>
-                  <div className="h-2 w-full overflow-hidden rounded-full bg-secondary">
-                    <div
-                      className={
-                        item.fulfilled
-                          ? "h-full rounded-full bg-success transition-all"
-                          : "h-full rounded-full bg-destructive transition-all"
-                      }
-                      style={{ width: `${pct}%` }}
-                    />
-                  </div>
-                  <Button
-                    asChild
-                    variant={item.fulfilled ? "ghost" : "outline"}
-                    size="sm"
-                    className="w-full h-7 text-xs mt-1"
-                  >
-                    <Link to={item.to} search={item.search}>
-                      {item.fulfilled ? "Ver atividade" : "Cumprir agora"}{" "}
-                      <ArrowRight className="ml-1 h-3 w-3" />
-                    </Link>
-                  </Button>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
 
       {/* 3 Cards essenciais do topo */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
