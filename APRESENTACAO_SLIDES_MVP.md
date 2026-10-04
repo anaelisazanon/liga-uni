@@ -46,8 +46,8 @@ Este documento contém a estrutura completa de **slides** para a apresentação 
    - **Card de Exigências Semestrais na Barra Lateral:** Logo abaixo das LigaCoins, card em **amarelo/âmbar** (`3/4 exigências semestrais cumpridas`) que, ao clicar, abre a página exclusiva de acompanhamento detalhado (`/lider/exigencias`).
    - **Atividades & Salas em Sub-abas (`/lider/capacitacoes`):** Demonstração das 6 sub-abas horizontais (*Capacitações UNI, Oficinas, Staff em Eventos, Reuniões de Equipe, Eventos no Ágora e Reuniões Liga UNI*), destacando os selos de **"Inscrito"** para eventos futuros e a alta recompensa em LC para Staff e Reuniões Gerais.
    - **Calendário em Modo Visualização (`/lider/calendario`):** Consulta segura da agenda geral com atalho direto para a sub-aba correspondente.
-3. **Visão de Equipe com Pendências (`Grupo Quasar — UDESC Fictício`):**
-   - Simulação de uma equipe com apenas `1/4` das metas cumpridas para demonstrar o acompanhamento de pendências.
+3. **Visão de Equipe Recém-Registrada (`Babitonga — UFSC Joinville`):**
+   - Simulação de uma equipe nova que acabou de se registrar no portal (`0 LigaCoins` e `0 solicitações`), pronta para iniciar sua jornada do zero.
 4. **Visão do Administrador (`Administrador do Ágora`):**
    - **Alerta de Permanência Semestral (`!`):** O Admin visualiza imediatamente quais equipes não bateram as metas do semestre.
    - **Central de Aprovações Horizontal (`/admin/aprovacoes`):** Sub-abas organizadas por tipo de atividade para aprovar reservas e liberar LigaCoins em 1 clique.

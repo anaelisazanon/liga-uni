@@ -1,8 +1,7 @@
-import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, redirect, useNavigate, useRouter } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import {
-  AlertTriangle,
   ArrowRight,
   CheckCircle2,
   ShieldCheck,
@@ -19,7 +18,6 @@ import {
   DEMO_PENDING_LEADER_EMAIL,
   isDemoLoginEnabled,
 } from "@/lib/demo";
-import { ensureDemoUsers } from "@/lib/demo.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -62,6 +60,7 @@ export const Route = createFileRoute("/auth")({
 
 function AuthPage() {
   const navigate = useNavigate();
+  const router = useRouter();
   const qc = useQueryClient();
   const [tab, setTab] = useState<"entrar" | "cadastrar">("entrar");
   const [loading, setLoading] = useState(false);
@@ -81,7 +80,8 @@ function AuthPage() {
       await qc.cancelQueries();
       qc.clear();
       const role = await getMyRole(userId);
-      navigate({ to: role === "admin" ? "/admin" : "/lider", replace: true });
+      await router.invalidate();
+      await navigate({ to: role === "admin" ? "/admin" : "/lider", replace: true });
     } catch (e) {
       toast.error(errMsg(e));
     }
@@ -90,65 +90,79 @@ function AuthPage() {
   const signIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password: senha });
-    setLoading(false);
-    if (error || !data.user) {
-      toast.error(authErrMsg(error));
-      return;
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: email.trim(),
+        password: senha,
+      });
+      if (error || !data.user) {
+        toast.error(authErrMsg(error));
+        return;
+      }
+      toast.success("Login realizado com sucesso!");
+      await routeByUser(data.user.id);
+    } catch (err) {
+      toast.error(errMsg(err));
+    } finally {
+      setLoading(false);
     }
-    await routeByUser(data.user.id);
   };
 
   const signUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const { error } = await supabase.auth.signUp({
-      email,
-      password: senha,
-      options: {
-        emailRedirectTo: window.location.origin + "/auth",
-        data: { nome, faculdade, projeto, descricao },
-      },
-    });
-    setLoading(false);
-    if (error) {
-      toast.error(authErrMsg(error));
-      return;
+    try {
+      const { error } = await supabase.auth.signUp({
+        email: email.trim(),
+        password: senha,
+        options: {
+          emailRedirectTo: window.location.origin + "/auth",
+          data: { nome, faculdade, projeto, descricao },
+        },
+      });
+      if (error) {
+        toast.error(authErrMsg(error));
+        return;
+      }
+      setSubmittedPending(true);
+      toast.success(
+        "Solicitação de cadastro enviada! O administrador irá analisar os dados do seu projeto.",
+      );
+    } catch (err) {
+      toast.error(errMsg(err));
+    } finally {
+      setLoading(false);
     }
-    setSubmittedPending(true);
-    toast.success(
-      "Solicitação de cadastro enviada! O administrador irá analisar os dados do seu projeto.",
-    );
   };
 
   const signInDemo = async (targetEmail: string) => {
     setLoading(true);
     try {
-      await ensureDemoUsers();
-    } catch {
-      // Continua normalmente caso o servidor não tenha SUPABASE_SERVICE_ROLE_KEY
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: targetEmail.trim(),
+        password: DEMO_PASSWORD,
+      });
+      if (error || !data.user) {
+        toast.error(authErrMsg(error));
+        return;
+      }
+      toast.success(
+        targetEmail === DEMO_ADMIN_EMAIL
+          ? "Acesso de Administrador liberado!"
+          : "Acesso de Líder liberado!",
+      );
+      await routeByUser(data.user.id);
+    } catch (err) {
+      toast.error(errMsg(err));
+    } finally {
+      setLoading(false);
     }
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email: targetEmail,
-      password: DEMO_PASSWORD,
-    });
-    setLoading(false);
-    if (error || !data.user) {
-      toast.error(authErrMsg(error));
-      return;
-    }
-    toast.success(
-      targetEmail === DEMO_ADMIN_EMAIL
-        ? "Acesso de Administrador liberado!"
-        : "Acesso de Líder liberado!",
-    );
-    await routeByUser(data.user.id);
   };
 
   return (
     <div className="min-h-screen grid lg:grid-cols-2 bg-background">
       {/* Coluna lateral esquerda limpa e institucional (como era originalmente) */}
-      <div className="hidden lg:flex flex-col justify-between bg-gradient-hero text-primary-foreground p-12">
+      <div className="hidden lg:flex flex-col justify-between bg-hero bg-primary text-primary-foreground p-12">
         <div className="font-display text-2xl font-bold tracking-tight">
           Liga <span className="text-accent">UNI</span> · Ágora Tech Park
         </div>
@@ -232,15 +246,16 @@ function AuthPage() {
                 type="button"
                 disabled={loading}
                 onClick={() => signInDemo(DEMO_PENDING_LEADER_EMAIL)}
-                className="group flex w-full items-center justify-between gap-2 rounded-lg border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-left text-xs transition hover:border-amber-500/70 hover:bg-amber-500/15 disabled:opacity-50"
+                className="group flex w-full items-center justify-between gap-2 rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-3 py-2 text-left text-xs transition hover:border-emerald-500/70 hover:bg-emerald-500/15 disabled:opacity-50"
               >
-                <span className="inline-flex items-center gap-2 font-medium text-amber-800 dark:text-amber-300">
-                  <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-amber-600" />
+                <span className="inline-flex items-center gap-2 font-medium text-emerald-800 dark:text-emerald-300">
+                  <Sparkles className="h-3.5 w-3.5 shrink-0 text-emerald-600" />
                   <span>
-                    Testar equipe c/ pendências: <b>Grupo Quasar (UDESC)</b>
+                    Equipe recém-registrada (0 pontos e 0 solicitações):{" "}
+                    <b>Babitonga (UFSC Joinville)</b>
                   </span>
                 </span>
-                <ArrowRight className="h-3.5 w-3.5 shrink-0 text-amber-700 transition group-hover:translate-x-0.5" />
+                <ArrowRight className="h-3.5 w-3.5 shrink-0 text-emerald-700 transition group-hover:translate-x-0.5" />
               </button>
             </div>
           )}

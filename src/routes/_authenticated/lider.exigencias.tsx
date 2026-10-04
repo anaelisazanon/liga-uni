@@ -111,7 +111,7 @@ function LiderExigenciasPage() {
             <h2 className="font-display text-lg sm:text-xl font-bold text-foreground">
               {semesterReqs.isCompliant
                 ? "Parabéns! Sua equipe está em dia com todas as metas do semestre."
-                : `Falta(m) ${semesterReqs.missingRequirementsCount} meta(s) para concluir os requisitos deste semestre`}
+                : `Pendências atuais: ${semesterReqs.missingRequirementsCount} de ${semesterReqs.totalRequirements} exigências do semestre`}
             </h2>
             <p className="text-xs sm:text-sm text-muted-foreground max-w-3xl">
               Para manter o vínculo ativo na Liga UNI e continuar usufruindo das salas e benefícios
@@ -165,7 +165,7 @@ function LiderExigenciasPage() {
                       <h3 className="font-display text-base font-bold text-foreground">
                         {item.title}
                       </h3>
-                      <p className="text-xs text-muted-foreground">{item.targetLabel}</p>
+                      <p className="text-xs text-muted-foreground">{item.shortTitle}</p>
                     </div>
                   </div>
 

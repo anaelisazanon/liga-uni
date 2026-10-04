@@ -260,9 +260,7 @@ function LiderReunioesPage() {
                   }}
                 >
                   <Users className="mr-1.5 h-4 w-4" />
-                  <span>Selecionar participantes (</span>
-                  <CoinPerPersonTag perMember={CREDITS_PER_MEETING_MEMBER} />
-                  <span>)</span>
+                  <span>Selecionar participantes</span>
                 </Button>
               )}
             </div>
@@ -423,7 +421,7 @@ function LiderReunioesPage() {
                   type="submit"
                   disabled={confirmPresence.isPending || selectedNames.length === 0}
                 >
-                  Confirmar ({selectedNames.length} participante(s) · +{modalTotalCoins} LC)
+                  Confirmar ({selectedNames.length} participante(s))
                 </Button>
               </div>
             </form>

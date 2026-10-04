@@ -53,17 +53,25 @@ const emptyForm = {
   titulo: "",
   pauta: "",
   local: "Auditório Principal Ágora",
-  inicio: "",
-  fim: "",
+  data: "",
+  horaInicio: "",
+  horaFim: "",
   creditos_recompensa: CREDITS_PER_MEETING_EVENT,
   ativa: true,
 };
 
-function toLocalInput(iso: string) {
+function toLocalDate(iso: string) {
   if (!iso) return "";
   const d = new Date(iso);
   const pad = (n: number) => String(n).padStart(2, "0");
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
+
+function toLocalTime(iso: string) {
+  if (!iso) return "";
+  const d = new Date(iso);
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
 function AdminReunioesPage() {
@@ -90,8 +98,9 @@ function AdminReunioesPage() {
       titulo: m.titulo,
       pauta: m.pauta ?? "",
       local: m.local ?? "Auditório Principal Ágora",
-      inicio: toLocalInput(m.inicio),
-      fim: toLocalInput(m.fim),
+      data: toLocalDate(m.inicio),
+      horaInicio: toLocalTime(m.inicio),
+      horaFim: toLocalTime(m.fim),
       creditos_recompensa: m.creditos_recompensa || CREDITS_PER_MEETING_EVENT,
       ativa: m.ativa,
     });
@@ -100,15 +109,20 @@ function AdminReunioesPage() {
 
   const save = useMutation({
     mutationFn: async () => {
-      if (new Date(form.fim) <= new Date(form.inicio)) {
-        throw new Error("A data final precisa ser posterior à inicial.");
+      if (!form.data || !form.horaInicio || !form.horaFim) {
+        throw new Error("Informe o dia, horário de início e horário de término.");
+      }
+      if (form.horaFim <= form.horaInicio) {
+        throw new Error(
+          "O horário de término precisa ser posterior ao horário de início no mesmo dia.",
+        );
       }
       const payload = {
         titulo: form.titulo.trim(),
         pauta: form.pauta.trim() || null,
         local: form.local.trim() || null,
-        inicio: new Date(form.inicio).toISOString(),
-        fim: new Date(form.fim).toISOString(),
+        inicio: new Date(`${form.data}T${form.horaInicio}`).toISOString(),
+        fim: new Date(`${form.data}T${form.horaFim}`).toISOString(),
         creditos_recompensa: Number(form.creditos_recompensa) || CREDITS_PER_MEETING_EVENT,
         ativa: form.ativa,
       };
@@ -479,24 +493,35 @@ function AdminReunioesPage() {
                 />
               </div>
             </div>
-            <div className="grid grid-cols-1 gap-3">
+            <div className="space-y-3 rounded-xl border bg-muted/20 p-3">
               <div className="space-y-1.5">
-                <Label>Início</Label>
+                <Label>Dia da reunião</Label>
                 <Input
-                  type="datetime-local"
+                  type="date"
                   required
-                  value={form.inicio}
-                  onChange={(e) => setForm({ ...form, inicio: e.target.value })}
+                  value={form.data}
+                  onChange={(e) => setForm({ ...form, data: e.target.value })}
                 />
               </div>
-              <div className="space-y-1.5">
-                <Label>Fim</Label>
-                <Input
-                  type="datetime-local"
-                  required
-                  value={form.fim}
-                  onChange={(e) => setForm({ ...form, fim: e.target.value })}
-                />
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label>Horário de início</Label>
+                  <Input
+                    type="time"
+                    required
+                    value={form.horaInicio}
+                    onChange={(e) => setForm({ ...form, horaInicio: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label>Horário de término</Label>
+                  <Input
+                    type="time"
+                    required
+                    value={form.horaFim}
+                    onChange={(e) => setForm({ ...form, horaFim: e.target.value })}
+                  />
+                </div>
               </div>
             </div>
             <div className="flex items-center justify-between rounded-lg border border-border p-3">

@@ -261,8 +261,8 @@ function AdminHome() {
 
       {/* Aviso (!) de Equipes que NÃO cumpriram as exigências semestrais */}
       {nonCompliantEntities.length > 0 && (
-        <div className="rounded-2xl border-2 border-destructive/50 bg-destructive/5 p-5 shadow-card space-y-4">
-          <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="rounded-2xl border-2 border-destructive/50 bg-destructive/5 p-5 shadow-card">
+          <div className="flex flex-wrap items-center justify-between gap-4">
             <div className="flex items-start gap-3">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-destructive text-destructive-foreground font-display text-xl font-black shadow-sm">
                 !
@@ -280,57 +280,20 @@ function AdminHome() {
                   </span>
                 </div>
                 <h2 className="mt-1 font-display text-base sm:text-lg font-bold text-foreground">
-                  Atenção (!): Equipes que ainda não cumpriram as exigências semestrais da Liga UNI
+                  Existem {nonCompliantEntities.length} equipe
+                  {nonCompliantEntities.length > 1 ? "s" : ""} com exigências semestrais pendentes
                 </h2>
                 <p className="text-xs text-muted-foreground">
-                  Para continuar na Liga UNI semestralmente, cada projeto precisa estar presente em
-                  todas as Reuniões Liga UNI, ajudar em 2 eventos como Staff, participar de 2
-                  Capacitações UNI e oferecer 1 Oficina.
+                  Clique no botão ao lado para abrir a página de pendências semestrais, conferir o
+                  detalhamento de cada equipe e enviar aviso por e-mail ao líder.
                 </p>
               </div>
             </div>
-            <Button size="sm" variant="outline" asChild>
-              <Link to="/admin/entidades">
-                Ver em Entidades <ArrowRight className="ml-1 size-3.5" />
+            <Button size="sm" variant="destructive" asChild>
+              <Link to="/admin/pendencias-semestrais">
+                Ver equipes e pendências <ArrowRight className="ml-1.5 size-3.5" />
               </Link>
             </Button>
-          </div>
-
-          <div className="grid gap-3 md:grid-cols-2">
-            {nonCompliantEntities.map(({ entity: ent, reqs }) => {
-              const missingItems = reqs.items.filter((i) => !i.fulfilled);
-              return (
-                <div
-                  key={ent.id}
-                  className="rounded-xl border border-destructive/35 bg-card p-4 flex flex-col justify-between gap-3 shadow-xs"
-                >
-                  <div>
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="font-display text-sm font-bold text-foreground">
-                        {ent.nome}
-                      </span>
-                      <span className="inline-flex items-center gap-1 rounded-full bg-destructive/15 px-2.5 py-0.5 text-xs font-bold text-destructive shrink-0">
-                        ! {reqs.fulfilledCount}/{reqs.totalRequirements} cumpridas
-                      </span>
-                    </div>
-                    <p className="mt-1 text-xs text-muted-foreground">
-                      Falta(m) <strong>{reqs.missingRequirementsCount}</strong> exigência(s) neste
-                      semestre:
-                    </p>
-                    <div className="mt-2 flex flex-wrap gap-1.5">
-                      {missingItems.map((m) => (
-                        <span
-                          key={m.key}
-                          className="inline-flex items-center gap-1 rounded-md border border-destructive/30 bg-destructive/10 px-2 py-0.5 text-[11px] font-semibold text-destructive"
-                        >
-                          • {m.shortTitle}: {m.statusText} ({m.current}/{m.target})
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
           </div>
         </div>
       )}
@@ -339,7 +302,7 @@ function AdminHome() {
         <div className="rounded-xl border border-warning/40 bg-warning/10 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             <div className="text-sm font-semibold">
-              {pendingLeaders.length} solicitação(ões) de cadastro de líder aguardando aprovação
+              Cadastros de líderes aguardando aprovação: {pendingLeaders.length}
             </div>
             <p className="text-xs text-muted-foreground mt-0.5">
               Aprove para liberar o acesso e criar automaticamente a entidade universitária.
@@ -414,7 +377,7 @@ function AdminHome() {
                       : "inline-flex items-center rounded-full bg-secondary text-muted-foreground px-2.5 py-0.5 text-xs font-medium"
                   }
                 >
-                  {s.count} pendente(s)
+                  Em aberto: {s.count}
                 </span>
                 <ArrowRight className="size-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
               </div>

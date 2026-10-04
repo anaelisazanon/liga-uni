@@ -53,6 +53,7 @@ function LiderLayout() {
   const { data: redemptions = [] } = useQuery({ ...rewardRedemptionsQuery(id), enabled: !!id });
 
   const coins = calculateEntityCoins({
+    entityId: id,
     reservations,
     trainingRegistrations: trainingRegs,
     staffVolunteers: staffVols,

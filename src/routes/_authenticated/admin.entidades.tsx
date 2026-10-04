@@ -57,7 +57,7 @@ function EntidadesPage() {
     <>
       <PageHeader
         title="Entidades Universitárias de Joinville"
-        description={`${entities.length} entidades na Liga UNI (UDESC, UFSC, IFSC e Univille) · ${members.length} membros · ${pendingReqCount} cadastro(s) pendente(s)`}
+        description={`${entities.length} entidades na Liga UNI (UDESC, UFSC, IFSC e Univille) · ${members.length} membros · Cadastros pendentes: ${pendingReqCount}`}
       />
 
       <Tabs

@@ -16,7 +16,7 @@ export default defineConfig({
       port: 3000,
     },
     optimizeDeps: {
-      include: ["@tanstack/react-start/client", "@tanstack/react-router", "@tanstack/react-query"],
+      exclude: ["@tanstack/react-start", "@tanstack/react-start/client", "@tanstack/start-client-core", "@tanstack/start-storage-context"],
     },
   },
   tanstackStart: {

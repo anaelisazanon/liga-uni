@@ -133,6 +133,7 @@ function LiderLigaCoinsPage() {
   if (!entity) return <NeedEntity />;
 
   const coins = calculateEntityCoins({
+    entityId: id,
     reservations,
     trainingRegistrations: trainingRegs,
     staffVolunteers: staffVols,
@@ -146,6 +147,7 @@ function LiderLigaCoinsPage() {
   const ranking = allEntities
     .map((ent) => {
       const c = calculateEntityCoins({
+        entityId: ent.id,
         trainingRegistrations: allTrainingRegs.filter((r) => r.entity_id === ent.id),
         staffVolunteers: allStaffVols.filter((v) => v.entity_id === ent.id),
         peerWorkshops: allWorkshops.filter((w) => w.entity_id === ent.id),
@@ -428,11 +430,12 @@ function LiderLigaCoinsPage() {
                       <div className="flex items-center gap-2">
                         <span className="text-sm font-semibold">Reservar Salas do Ágora</span>
                         <span className="rounded-full bg-primary/15 px-2 py-0.5 text-[11px] font-bold text-primary">
-                          {CREDITS_COST_ROOM} LC (reunião)
+                          -{CREDITS_COST_ROOM} LC (reunião)
                         </span>
                       </div>
                       <p className="text-xs text-muted-foreground">
-                        Salas para Reuniões de Equipe (10 LC) ou para Oferecer Oficina (Grátis)
+                        Salas para Reuniões de Equipe (-{CREDITS_COST_ROOM} LC) ou para Oferecer
+                        Oficina (Grátis)
                       </p>
                     </div>
                   </div>
@@ -454,7 +457,8 @@ function LiderLigaCoinsPage() {
                           Mentorias VIP, Divulgação & Coffee Break
                         </span>
                         <span className="rounded-full bg-primary/15 px-2 py-0.5 text-[11px] font-bold text-primary">
-                          60 a 200 LC
+                          -{REWARD_CATALOG[0]?.custo ?? 100} a -
+                          {REWARD_CATALOG[REWARD_CATALOG.length - 1]?.custo ?? 400} LC
                         </span>
                       </div>
                       <p className="text-xs text-muted-foreground">
@@ -616,21 +620,36 @@ function LiderLigaCoinsPage() {
               </Button>
             </div>
 
-            <ul className="divide-y text-sm">
-              <li className="flex items-center justify-between py-3">
-                <div className="flex items-center gap-3">
-                  <div className="rounded-lg bg-amber-500/15 p-2 text-amber-600">
-                    <Sparkles className="h-4 w-4" />
-                  </div>
-                  <div>
-                    <div className="font-medium">Bônus de Boas-Vindas Liga UNI</div>
-                    <div className="text-xs text-muted-foreground">Crédito inicial da entidade</div>
-                  </div>
-                </div>
-                <span className="rounded-full bg-success/15 px-2.5 py-0.5 text-xs font-bold text-success">
-                  +{CREDITS_WELCOME} LC
-                </span>
-              </li>
+            {id === "ent-5" &&
+            attendances.filter((a) => a.presente).length === 0 &&
+            trainingRegs.length === 0 &&
+            staffVols.length === 0 &&
+            workshops.filter((w) => w.status !== "rejected").length === 0 ? (
+              <p className="py-4 text-sm text-muted-foreground">
+                Sua equipe acabou de se registrar e ainda possui 0 LigaCoins. Inscreva membros nas
+                Reuniões Liga UNI, Capacitações, Staff ou ofereça uma Oficina para ganhar suas
+                primeiras moedas!
+              </p>
+            ) : (
+              <ul className="divide-y text-sm">
+                {id !== "ent-5" && (
+                  <li className="flex items-center justify-between py-3">
+                    <div className="flex items-center gap-3">
+                      <div className="rounded-lg bg-amber-500/15 p-2 text-amber-600">
+                        <Sparkles className="h-4 w-4" />
+                      </div>
+                      <div>
+                        <div className="font-medium">Bônus de Boas-Vindas Liga UNI</div>
+                        <div className="text-xs text-muted-foreground">
+                          Crédito inicial da entidade
+                        </div>
+                      </div>
+                    </div>
+                    <span className="rounded-full bg-success/15 px-2.5 py-0.5 text-xs font-bold text-success">
+                      +{CREDITS_WELCOME} LC
+                    </span>
+                  </li>
+                )}
 
               {attendances
                 .filter((a) => a.presente)
@@ -781,7 +800,8 @@ function LiderLigaCoinsPage() {
                     </li>
                   );
                 })}
-            </ul>
+              </ul>
+            )}
           </Card>
         </TabsContent>
 

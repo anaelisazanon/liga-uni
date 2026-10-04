@@ -27,6 +27,15 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CoinPerPersonTag, PageHeader, StatusBadge } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
 import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
   calcMeetingCoins,
   calcStaffCoins,
   calcTrainingCoins,
@@ -169,6 +178,15 @@ function AdminAprovacoesPage() {
   const pendingLeaders = leaderReqs.filter((r) => r.status === "pending");
   const doneLeaders = leaderReqs.filter((r) => r.status !== "pending");
 
+  const [rejectTarget, setRejectTarget] = useState<{
+    kind: "workshop" | "reservation" | "redemption" | "leader";
+    id: string;
+    title: string;
+    entityLabel: string;
+    coins?: number;
+  } | null>(null);
+  const [rejectReason, setRejectReason] = useState("");
+
   // Mutations
   const releaseMeeting = useMutation({
     mutationFn: async ({ id, coins }: { id: string; coins: number }) => {
@@ -224,22 +242,24 @@ function AdminAprovacoesPage() {
       status,
       moedas_liberadas,
       coins,
+      admin_note,
     }: {
       id: string;
       status: "approved" | "rejected";
       moedas_liberadas: boolean;
       coins: number;
+      admin_note?: string | null;
     }) => {
       const { error } = await supabase
         .from("peer_workshops")
-        .update({ status, moedas_liberadas })
+        .update({ status, moedas_liberadas, admin_note: admin_note ?? null })
         .eq("id", id);
       if (error) throw error;
       return { status, moedas_liberadas, coins };
     },
     onSuccess: ({ status, moedas_liberadas, coins }) => {
       if (status === "rejected") {
-        toast.success("Proposta de oficina recusada.");
+        toast.success("Proposta de oficina recusada e justificativa enviada para a equipe.");
       } else if (moedas_liberadas) {
         toast.success(`Oficina validada e +${coins} LigaCoins liberadas!`);
       } else {
@@ -252,13 +272,28 @@ function AdminAprovacoesPage() {
   });
 
   const decideReservation = useMutation({
-    mutationFn: async ({ id, status }: { id: string; status: "approved" | "rejected" }) => {
-      const { error } = await supabase.from("reservations").update({ status }).eq("id", id);
+    mutationFn: async ({
+      id,
+      status,
+      admin_note,
+    }: {
+      id: string;
+      status: "approved" | "rejected";
+      admin_note?: string | null;
+    }) => {
+      const { error } = await supabase
+        .from("reservations")
+        .update({ status, admin_note: admin_note ?? null })
+        .eq("id", id);
       if (error) throw error;
       return status;
     },
     onSuccess: (s) => {
-      toast.success(s === "approved" ? "Reserva de sala aprovada!" : "Reserva de sala recusada.");
+      toast.success(
+        s === "approved"
+          ? "Reserva de sala aprovada!"
+          : "Reserva de sala recusada e justificativa enviada para a equipe.",
+      );
       qc.invalidateQueries({ queryKey: ["reservations"] });
       qc.invalidateQueries({ queryKey: ["room-busy"] });
     },
@@ -266,10 +301,18 @@ function AdminAprovacoesPage() {
   });
 
   const decideRedemption = useMutation({
-    mutationFn: async ({ id, status }: { id: string; status: "approved" | "rejected" }) => {
+    mutationFn: async ({
+      id,
+      status,
+      admin_note,
+    }: {
+      id: string;
+      status: "approved" | "rejected";
+      admin_note?: string | null;
+    }) => {
       const { error } = await supabase
         .from("reward_redemptions")
-        .update({ status })
+        .update({ status, admin_note: admin_note ?? null })
         .eq("id", id);
       if (error) throw error;
       return status;
@@ -278,7 +321,7 @@ function AdminAprovacoesPage() {
       toast.success(
         s === "approved"
           ? "Resgate de benefício aprovado!"
-          : "Solicitação de resgate recusada (LigaCoins estornadas).",
+          : "Solicitação de resgate recusada e justificativa enviada (LigaCoins estornadas).",
       );
       qc.invalidateQueries({ queryKey: ["reward-redemptions"] });
     },
@@ -286,10 +329,18 @@ function AdminAprovacoesPage() {
   });
 
   const decideLeader = useMutation({
-    mutationFn: async ({ id, status }: { id: string; status: "approved" | "rejected" }) => {
+    mutationFn: async ({
+      id,
+      status,
+      admin_note,
+    }: {
+      id: string;
+      status: "approved" | "rejected";
+      admin_note?: string | null;
+    }) => {
       const { error } = await supabase
         .from("leader_requests")
-        .update({ status })
+        .update({ status, admin_note: admin_note ?? null })
         .eq("id", id);
       if (error) throw error;
       return status;
@@ -298,7 +349,7 @@ function AdminAprovacoesPage() {
       toast.success(
         s === "approved"
           ? "Novo projeto/líder aprovado! O acesso já está liberado."
-          : "Solicitação de cadastro recusada.",
+          : "Solicitação de cadastro recusada e justificativa registrada.",
       );
       qc.invalidateQueries({ queryKey: ["leader-requests"] });
       qc.invalidateQueries({ queryKey: ["entities"] });
@@ -306,6 +357,45 @@ function AdminAprovacoesPage() {
     },
     onError: (e) => toast.error(errMsg(e)),
   });
+
+  const handleConfirmReject = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!rejectTarget) return;
+    const note = rejectReason.trim();
+    if (!note) {
+      toast.error("Informe a justificativa para enviar à equipe.");
+      return;
+    }
+    if (rejectTarget.kind === "workshop") {
+      approveWorkshop.mutate({
+        id: rejectTarget.id,
+        status: "rejected",
+        moedas_liberadas: false,
+        coins: rejectTarget.coins ?? 0,
+        admin_note: note,
+      });
+    } else if (rejectTarget.kind === "reservation") {
+      decideReservation.mutate({
+        id: rejectTarget.id,
+        status: "rejected",
+        admin_note: note,
+      });
+    } else if (rejectTarget.kind === "redemption") {
+      decideRedemption.mutate({
+        id: rejectTarget.id,
+        status: "rejected",
+        admin_note: note,
+      });
+    } else if (rejectTarget.kind === "leader") {
+      decideLeader.mutate({
+        id: rejectTarget.id,
+        status: "rejected",
+        admin_note: note,
+      });
+    }
+    setRejectTarget(null);
+    setRejectReason("");
+  };
 
   const sectionMeta: Record<ApprovalTabKey, { title: string; subtitle: string }> = {
     reunioes: {
@@ -967,14 +1057,16 @@ function AdminAprovacoesPage() {
                           <Button
                             size="sm"
                             variant="ghost"
-                            onClick={() =>
-                              approveWorkshop.mutate({
+                            onClick={() => {
+                              setRejectReason("");
+                              setRejectTarget({
+                                kind: "workshop",
                                 id: w.id,
-                                status: "rejected",
-                                moedas_liberadas: false,
+                                title: `Oficina: ${w.titulo}`,
+                                entityLabel: entityName(w.entity_id),
                                 coins,
-                              })
-                            }
+                              });
+                            }}
                           >
                             <X className="mr-1 h-4 w-4" /> Recusar
                           </Button>
@@ -1028,6 +1120,11 @@ function AdminAprovacoesPage() {
                         {entityName(w.entity_id)} · {fmtDateTime(w.data_sugerida)} ·{" "}
                         {w.ministrantes}
                       </div>
+                      {w.admin_note && (
+                        <div className="text-xs italic text-destructive">
+                          Justificativa enviada: {w.admin_note}
+                        </div>
+                      )}
                     </div>
                   </div>
                 </Card>
@@ -1100,7 +1197,15 @@ function AdminAprovacoesPage() {
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={() => decideReservation.mutate({ id: r.id, status: "rejected" })}
+                        onClick={() => {
+                          setRejectReason("");
+                          setRejectTarget({
+                            kind: "reservation",
+                            id: r.id,
+                            title: `Reserva de Sala: ${roomName(r.room_id)} (${fmtDateTime(r.inicio)})`,
+                            entityLabel: entityName(r.entity_id),
+                          });
+                        }}
                       >
                         <X className="mr-1 h-4 w-4" /> Recusar
                       </Button>
@@ -1130,6 +1235,11 @@ function AdminAprovacoesPage() {
                       {entityName(r.entity_id)} · {fmtDateTime(r.inicio)} – {fmtDateTime(r.fim)} ·{" "}
                       {r.motivo}
                     </div>
+                    {r.admin_note && (
+                      <div className="text-xs italic text-destructive">
+                        Justificativa enviada: {r.admin_note}
+                      </div>
+                    )}
                   </div>
                 </div>
               </Card>
@@ -1183,7 +1293,15 @@ function AdminAprovacoesPage() {
                     <Button
                       size="sm"
                       variant="outline"
-                      onClick={() => decideRedemption.mutate({ id: red.id, status: "rejected" })}
+                      onClick={() => {
+                        setRejectReason("");
+                        setRejectTarget({
+                          kind: "redemption",
+                          id: red.id,
+                          title: `Resgate de Benefício: ${red.recompensa_titulo}`,
+                          entityLabel: entityName(red.entity_id),
+                        });
+                      }}
                     >
                       <X className="mr-1 h-4 w-4" /> Recusar
                     </Button>
@@ -1225,7 +1343,15 @@ function AdminAprovacoesPage() {
                     <Button
                       size="sm"
                       variant="outline"
-                      onClick={() => decideLeader.mutate({ id: req.id, status: "rejected" })}
+                      onClick={() => {
+                        setRejectReason("");
+                        setRejectTarget({
+                          kind: "leader",
+                          id: req.id,
+                          title: `Novo Cadastro: ${req.projeto} (${req.faculdade})`,
+                          entityLabel: `${req.nome_lider} (${req.email})`,
+                        });
+                      }}
                     >
                       <X className="mr-1 h-4 w-4" /> Recusar
                     </Button>
@@ -1253,6 +1379,11 @@ function AdminAprovacoesPage() {
                     <div className="text-xs">
                       {entityName(red.entity_id)} · Custo: {red.custo} LC
                     </div>
+                    {red.admin_note && (
+                      <div className="text-xs italic text-destructive">
+                        Justificativa enviada: {red.admin_note}
+                      </div>
+                    )}
                   </div>
                 </div>
               </Card>
@@ -1273,6 +1404,11 @@ function AdminAprovacoesPage() {
                     <div className="text-xs">
                       {req.nome_lider} · {req.email}
                     </div>
+                    {req.admin_note && (
+                      <div className="text-xs italic text-destructive">
+                        Justificativa enviada: {req.admin_note}
+                      </div>
+                    )}
                   </div>
                 </div>
               </Card>
@@ -1280,6 +1416,53 @@ function AdminAprovacoesPage() {
           </PastApprovalsCollapsible>
         </div>
       )}
+
+      {/* Modal de justificativa ao recusar evento, oficina ou reserva de sala */}
+      <Dialog open={!!rejectTarget} onOpenChange={(o) => !o && setRejectTarget(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Informar justificativa da recusa</DialogTitle>
+          </DialogHeader>
+          {rejectTarget && (
+            <form onSubmit={handleConfirmReject} className="space-y-4">
+              <div className="rounded-lg border bg-muted/40 p-3 text-xs space-y-1">
+                <div>
+                  <span className="text-muted-foreground">Solicitação:</span>{" "}
+                  <strong className="text-foreground">{rejectTarget.title}</strong>
+                </div>
+                <div>
+                  <span className="text-muted-foreground">Equipe / Solicitante:</span>{" "}
+                  <strong className="text-foreground">{rejectTarget.entityLabel}</strong>
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <Label>Justificativa para enviar à equipe</Label>
+                <Textarea
+                  required
+                  rows={4}
+                  placeholder="Descreva o motivo da recusa (ex.: conflito de horário no espaço, necessidade de reagendamento, dados incompletos...)"
+                  value={rejectReason}
+                  onChange={(e) => setRejectReason(e.target.value)}
+                />
+                <p className="text-[11px] text-muted-foreground">
+                  Esta justificativa ficará visível para o líder da equipe no painel dele e será
+                  enviada na notificação da solicitação.
+                </p>
+              </div>
+
+              <DialogFooter>
+                <Button type="button" variant="outline" onClick={() => setRejectTarget(null)}>
+                  Cancelar
+                </Button>
+                <Button type="submit" variant="destructive">
+                  Confirmar recusa e enviar justificativa
+                </Button>
+              </DialogFooter>
+            </form>
+          )}
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

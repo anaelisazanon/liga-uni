@@ -55,7 +55,7 @@ function AdminGuiaPage() {
           presença em <strong>todas as Reuniões Liga UNI</strong>, atuar em{" "}
           <strong>2 eventos como Staff</strong>, participar de{" "}
           <strong>2 Capacitações UNI</strong> e oferecer <strong>1 Oficina</strong>. Quando uma
-          equipe está pendente (como o <em>Grupo Quasar — UDESC Fictício</em> para teste), o Admin
+          equipe está pendente (como a <em>Babitonga — UFSC Joinville</em> para teste), o Admin
           visualiza um alerta <strong>!</strong> na barra lateral, na Visão Geral e na aba{" "}
           <strong>Entidades → ! Exigências Pendentes</strong>.
         </p>

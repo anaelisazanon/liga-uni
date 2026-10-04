@@ -461,7 +461,7 @@ function LiderAtividadesESalasPage() {
                 <DoorOpen className="h-6 w-6" />
               </div>
               <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/15 px-2.5 py-1 text-xs font-bold text-amber-600">
-                {CREDITS_COST_ROOM} <Coins className="h-3.5 w-3.5" />
+                -{CREDITS_COST_ROOM} <Coins className="h-3.5 w-3.5" />
               </span>
             </div>
 
@@ -696,9 +696,7 @@ export function LiderCapacitacoesSubTab({ entityId }: { entityId: string }) {
                     setSelected(t);
                   }}
                 >
-                  <span>Selecionar participantes (</span>
-                  <CoinPerPersonTag perMember={CREDITS_PER_TRAINING_MEMBER} />
-                  <span>)</span>
+                  Selecionar participantes
                 </Button>
               )}
             </div>
@@ -761,8 +759,7 @@ export function LiderCapacitacoesSubTab({ entityId }: { entityId: string }) {
                   type="submit"
                   disabled={register.isPending || selectedNames.length === 0}
                 >
-                  Confirmar ({selectedNames.length} membro(s) · +
-                  {calcTrainingCoins(selectedNames.length)} LC)
+                  Confirmar ({selectedNames.length} membro(s))
                 </Button>
               </div>
             </form>
@@ -985,9 +982,7 @@ export function LiderStaffSubTab({ entityId }: { entityId: string }) {
                   }}
                 >
                   <HandHelping className="mr-1.5 h-4 w-4" />
-                  <span>Selecionar Staff (</span>
-                  <CoinPerPersonTag perMember={CREDITS_PER_STAFF_MEMBER} />
-                  <span>)</span>
+                  <span>Selecionar Staff</span>
                 </Button>
               )}
             </div>
@@ -1061,8 +1056,7 @@ export function LiderStaffSubTab({ entityId }: { entityId: string }) {
                   type="submit"
                   disabled={offerHelp.isPending || selectedNames.length === 0}
                 >
-                  Confirmar ({selectedNames.length} voluntário(s) · +
-                  {calcStaffCoins(selectedNames.length)} LC)
+                  Confirmar ({selectedNames.length} voluntário(s))
                 </Button>
               </div>
             </form>
@@ -1092,8 +1086,9 @@ export function LiderOficinasSubTab({
   const [emConjunto, setEmConjunto] = useState(false);
   const [partnerEntityId, setPartnerEntityId] = useState("");
   const [roomId, setRoomId] = useState("");
-  const [dataSugerida, setDataSugerida] = useState("");
-  const [fim, setFim] = useState("");
+  const [dataOficina, setDataOficina] = useState("");
+  const [horaInicio, setHoraInicio] = useState("");
+  const [horaFim, setHoraFim] = useState("");
   const [descricao, setDescricao] = useState("");
 
   const activeRooms = rooms.filter((r) => r.ativa);
@@ -1106,6 +1101,23 @@ export function LiderOficinasSubTab({
   const isJointValid = Boolean(emConjunto && partnerEntityId);
   const modalTotalCoins = calcWorkshopCoins(selectedNames.length, isJointValid);
 
+  const workshopDateErrors = useMemo(() => {
+    const errs: { inicio?: string; fim?: string } = {};
+    if (dataOficina && horaInicio) {
+      const start = new Date(`${dataOficina}T${horaInicio}`);
+      if (start <= new Date()) {
+        errs.inicio = "O horário de início deve ser no futuro.";
+      }
+    }
+    if (dataOficina && horaInicio && horaFim) {
+      if (horaFim <= horaInicio) {
+        errs.fim =
+          "O horário de término deve ser após o início no mesmo dia. Para mais de um dia, envie solicitações separadas.";
+      }
+    }
+    return errs;
+  }, [dataOficina, horaInicio, horaFim]);
+
   const create = useMutation({
     mutationFn: async () => {
       if (!roomId) throw new Error("Selecione a sala do Ágora para realizar a oficina.");
@@ -1115,14 +1127,17 @@ export function LiderOficinasSubTab({
       if (emConjunto && !partnerEntityId) {
         throw new Error("Selecione qual projeto parceiro realizará a oficina em conjunto.");
       }
+      if (!dataOficina || !horaInicio || !horaFim) {
+        throw new Error("Informe o dia, horário de início e horário de término.");
+      }
+      if (workshopDateErrors.inicio) throw new Error(workshopDateErrors.inicio);
+      if (workshopDateErrors.fim) throw new Error(workshopDateErrors.fim);
 
-      const startIso = new Date(dataSugerida).toISOString();
-      const endIso = fim
-        ? new Date(fim).toISOString()
-        : new Date(new Date(dataSugerida).getTime() + 2 * 3600000).toISOString();
+      const startIso = new Date(`${dataOficina}T${horaInicio}`).toISOString();
+      const endIso = new Date(`${dataOficina}T${horaFim}`).toISOString();
 
       if (new Date(endIso) <= new Date(startIso)) {
-        throw new Error("O término da oficina deve ser após o início.");
+        throw new Error("O término da oficina deve ser após o início no mesmo dia.");
       }
 
       const ministrantes = selectedNames.join(", ");
@@ -1163,8 +1178,9 @@ export function LiderOficinasSubTab({
       setEmConjunto(false);
       setPartnerEntityId("");
       setRoomId("");
-      setDataSugerida("");
-      setFim("");
+      setDataOficina("");
+      setHoraInicio("");
+      setHoraFim("");
       setDescricao("");
       toast.success(
         `Oficina e reserva gratuita da sala enviadas! Quando o administrador aprovar, todos os líderes receberão um aviso por e-mail (+${totalCoins} LC após o evento).`,
@@ -1280,6 +1296,11 @@ export function LiderOficinasSubTab({
               )}
 
               <p className="text-sm text-muted-foreground">{w.descricao}</p>
+              {w.admin_note && (
+                <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-1.5 text-xs text-destructive">
+                  <b>Justificativa do administrador:</b> {w.admin_note}
+                </div>
+              )}
 
               <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 pt-1 text-xs text-muted-foreground">
                 <span className="inline-flex items-center gap-1.5 rounded-md bg-muted px-2.5 py-1 font-medium text-foreground">
@@ -1320,12 +1341,7 @@ export function LiderOficinasSubTab({
               }}
             >
               <Plus />
-              <span>Propor oficina (</span>
-              <CoinPerPersonTag
-                perMember={CREDITS_PER_WORKSHOP_MEMBER}
-                perEvent={CREDITS_PER_PEER_WORKSHOP}
-              />
-              <span> · Sala Grátis)</span>
+              <span>Propor oficina (Sala Grátis)</span>
             </Button>
           </DialogTrigger>
           <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
@@ -1427,25 +1443,46 @@ export function LiderOficinasSubTab({
                 </Select>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-3 rounded-xl border bg-muted/20 p-3">
                 <div className="space-y-1.5">
-                  <Label>Início sugerido</Label>
+                  <Label>Dia da oficina / capacitação</Label>
                   <Input
-                    type="datetime-local"
+                    type="date"
                     required
-                    value={dataSugerida}
-                    onChange={(e) => setDataSugerida(e.target.value)}
+                    value={dataOficina}
+                    onChange={(e) => setDataOficina(e.target.value)}
                   />
                 </div>
-                <div className="space-y-1.5">
-                  <Label>Término sugerido</Label>
-                  <Input
-                    type="datetime-local"
-                    required
-                    value={fim}
-                    onChange={(e) => setFim(e.target.value)}
-                  />
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1.5">
+                    <Label>Horário de início</Label>
+                    <Input
+                      type="time"
+                      required
+                      value={horaInicio}
+                      onChange={(e) => setHoraInicio(e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label>Horário de término</Label>
+                    <Input
+                      type="time"
+                      required
+                      value={horaFim}
+                      onChange={(e) => setHoraFim(e.target.value)}
+                    />
+                  </div>
                 </div>
+                {workshopDateErrors.inicio && (
+                  <p className="text-xs text-destructive">{workshopDateErrors.inicio}</p>
+                )}
+                {workshopDateErrors.fim && (
+                  <p className="text-xs text-destructive">{workshopDateErrors.fim}</p>
+                )}
+                <p className="text-[11px] text-muted-foreground">
+                  Cada solicitação corresponde a 1 único dia. Caso precise de mais de um dia, envie
+                  2 solicitações separadas.
+                </p>
               </div>
 
               <div className="space-y-1.5">
@@ -1469,9 +1506,14 @@ export function LiderOficinasSubTab({
 
               <Button
                 className="w-full"
-                disabled={create.isPending || selectedNames.length === 0}
+                disabled={
+                  create.isPending ||
+                  selectedNames.length === 0 ||
+                  Boolean(workshopDateErrors.inicio) ||
+                  Boolean(workshopDateErrors.fim)
+                }
               >
-                Enviar oficina e reservar sala Grátis (+{modalTotalCoins} LC)
+                Enviar oficina e reservar sala Grátis
               </Button>
             </form>
           </DialogContent>
@@ -1511,13 +1553,15 @@ export function LiderReunioesEquipeSubTab({
 
   const [f, setF] = useState<{
     room_id: string;
-    inicio: string;
-    fim: string;
+    data: string;
+    horaInicio: string;
+    horaFim: string;
     motivo: string;
   }>({
     room_id: "",
-    inicio: "",
-    fim: "",
+    data: "",
+    horaInicio: "",
+    horaFim: "",
     motivo: "",
   });
 
@@ -1535,55 +1579,60 @@ export function LiderReunioesEquipeSubTab({
 
   const dateErrors = useMemo(() => {
     const errs: { inicio?: string; fim?: string } = {};
-    if (f.inicio) {
-      const start = new Date(f.inicio);
+    if (f.data && f.horaInicio) {
+      const start = new Date(`${f.data}T${f.horaInicio}`);
       if (start <= new Date()) {
-        errs.inicio = "O início deve ser no futuro.";
+        errs.inicio = "O horário de início deve ser no futuro.";
       }
     }
-    if (f.inicio && f.fim) {
-      const start = new Date(f.inicio);
-      const end = new Date(f.fim);
-      if (end <= start) {
-        errs.fim = "O término deve ser após o início.";
+    if (f.data && f.horaInicio && f.horaFim) {
+      if (f.horaFim <= f.horaInicio) {
+        errs.fim =
+          "O horário de término deve ser após o início no mesmo dia. Para mais de um dia, envie solicitações separadas.";
       }
     }
     return errs;
-  }, [f.inicio, f.fim]);
+  }, [f.data, f.horaInicio, f.horaFim]);
 
   const hasOverlap = useMemo(() => {
-    if (!f.inicio || !f.fim) return false;
-    const start = new Date(f.inicio);
-    const end = new Date(f.fim);
-    if (end <= start) return false;
+    if (!f.data || !f.horaInicio || !f.horaFim) return false;
+    if (f.horaFim <= f.horaInicio) return false;
+    const start = new Date(`${f.data}T${f.horaInicio}`);
+    const end = new Date(`${f.data}T${f.horaFim}`);
     return busySlots.some((b) => new Date(b.inicio) < end && new Date(b.fim) > start);
-  }, [f.inicio, f.fim, busySlots]);
+  }, [f.data, f.horaInicio, f.horaFim, busySlots]);
 
   const create = useMutation({
     mutationFn: async () => {
       if (!f.room_id) throw new Error("Escolha uma sala");
+      if (!f.data || !f.horaInicio || !f.horaFim) {
+        throw new Error("Informe o dia, horário de início e horário de término.");
+      }
       if (dateErrors.inicio) throw new Error(dateErrors.inicio);
       if (dateErrors.fim) throw new Error(dateErrors.fim);
+      const startIso = new Date(`${f.data}T${f.horaInicio}`).toISOString();
+      const endIso = new Date(`${f.data}T${f.horaFim}`).toISOString();
       const { error } = await supabase.from("reservations").insert({
         room_id: f.room_id,
         purpose: "reuniao_projeto",
         event_id: null,
         entity_id: entityId,
         requested_by: userId,
-        inicio: new Date(f.inicio).toISOString(),
-        fim: new Date(f.fim).toISOString(),
+        inicio: startIso,
+        fim: endIso,
         motivo: f.motivo,
       });
       if (error) throw error;
     },
     onSuccess: () => {
       toast.success(
-        `Solicitação de sala para reunião enviada! (${CREDITS_COST_ROOM} LigaCoins quando aprovada)`,
+        `Solicitação de sala para reunião enviada! (-${CREDITS_COST_ROOM} LigaCoins quando aprovada)`,
       );
       setF({
         room_id: "",
-        inicio: "",
-        fim: "",
+        data: "",
+        horaInicio: "",
+        horaFim: "",
         motivo: "",
       });
       qc.invalidateQueries({ queryKey: ["reservations"] });
@@ -1614,7 +1663,7 @@ export function LiderReunioesEquipeSubTab({
           <div className="mb-4 flex items-center justify-between">
             <h3 className="font-semibold">Reservar sala para reunião da equipe</h3>
             <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/15 px-2.5 py-0.5 text-xs font-bold text-amber-600">
-              {CREDITS_COST_ROOM} <Coins className="h-3.5 w-3.5" />
+              -{CREDITS_COST_ROOM} <Coins className="h-3.5 w-3.5" />
             </span>
           </div>
           <form
@@ -1660,29 +1709,44 @@ export function LiderReunioesEquipeSubTab({
               </div>
             )}
 
-            <div className="grid grid-cols-1 gap-3">
+            <div className="space-y-3 rounded-xl border bg-muted/20 p-3">
               <div className="space-y-1.5">
-                <Label>Início</Label>
+                <Label>Dia da reunião</Label>
                 <Input
-                  type="datetime-local"
+                  type="date"
                   required
-                  value={f.inicio}
-                  onChange={(e) => setF({ ...f, inicio: e.target.value })}
+                  value={f.data}
+                  onChange={(e) => setF({ ...f, data: e.target.value })}
                 />
-                {dateErrors.inicio && (
-                  <p className="text-xs text-destructive">{dateErrors.inicio}</p>
-                )}
               </div>
-              <div className="space-y-1.5">
-                <Label>Fim</Label>
-                <Input
-                  type="datetime-local"
-                  required
-                  value={f.fim}
-                  onChange={(e) => setF({ ...f, fim: e.target.value })}
-                />
-                {dateErrors.fim && <p className="text-xs text-destructive">{dateErrors.fim}</p>}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label>Horário de início</Label>
+                  <Input
+                    type="time"
+                    required
+                    value={f.horaInicio}
+                    onChange={(e) => setF({ ...f, horaInicio: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label>Horário de término</Label>
+                  <Input
+                    type="time"
+                    required
+                    value={f.horaFim}
+                    onChange={(e) => setF({ ...f, horaFim: e.target.value })}
+                  />
+                </div>
               </div>
+              {dateErrors.inicio && (
+                <p className="text-xs text-destructive">{dateErrors.inicio}</p>
+              )}
+              {dateErrors.fim && <p className="text-xs text-destructive">{dateErrors.fim}</p>}
+              <p className="text-[11px] text-muted-foreground">
+                Cada solicitação vale para 1 único dia. Se precisar de mais de um dia, faça 2
+                solicitações.
+              </p>
             </div>
 
             {hasOverlap && (
@@ -1709,7 +1773,7 @@ export function LiderReunioesEquipeSubTab({
               className="w-full"
               disabled={create.isPending || Boolean(dateErrors.inicio) || Boolean(dateErrors.fim)}
             >
-              Solicitar sala para reunião ({CREDITS_COST_ROOM} LC)
+              Solicitar sala para reunião
             </Button>
           </form>
         </Card>
@@ -1767,7 +1831,7 @@ export function LiderReunioesEquipeSubTab({
                         <span className="text-success">Grátis</span>
                       ) : (
                         <span className="inline-flex items-center gap-1 text-amber-600">
-                          {CREDITS_COST_ROOM} <Coins className="h-3 w-3" />
+                          -{CREDITS_COST_ROOM} <Coins className="h-3 w-3" />
                         </span>
                       )}
                     </TableCell>

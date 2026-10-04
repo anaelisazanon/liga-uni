@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "@tanstack/react-router";
+import { Link, useNavigate, useRouter } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState, type ReactNode } from "react";
 import {
@@ -89,6 +89,7 @@ export function AppShell({
   children: ReactNode;
 }) {
   const navigate = useNavigate();
+  const router = useRouter();
   const qc = useQueryClient();
   const isAdminBadge = badge.toLowerCase().includes("admin");
 
@@ -96,7 +97,8 @@ export function AppShell({
     await qc.cancelQueries();
     qc.clear();
     await supabase.auth.signOut();
-    navigate({ to: "/auth", replace: true });
+    await router.invalidate();
+    await navigate({ to: "/auth", replace: true });
   };
 
   return (
@@ -127,23 +129,25 @@ export function AppShell({
             <Link
               to={coinsTo ?? "/lider/ligacoins"}
               title="Clique para abrir a Central LigaCoins (Como funciona, Benefícios, Ranking, Entradas e Saídas)"
-              className="group mt-2 block rounded-lg border border-amber-400/30 bg-amber-500/15 px-3 py-2 text-xs transition hover:border-amber-400/60 hover:bg-amber-500/25"
+              className="group mt-2 block rounded-lg border border-emerald-400/40 bg-emerald-500/15 px-3 py-2 text-xs transition hover:border-emerald-400/70 hover:bg-emerald-500/25"
             >
               <div className="flex items-center justify-between">
-                <span className="inline-flex items-center gap-1.5 font-semibold text-amber-300">
+                <span className="inline-flex items-center gap-1.5 font-semibold text-emerald-300">
                   <Coins className="h-3.5 w-3.5" /> LigaCoins
                 </span>
-                <span className="inline-flex items-center gap-0.5 font-display text-sm font-bold text-amber-300">
+                <span className="inline-flex items-center gap-0.5 font-display text-sm font-bold text-emerald-300">
                   {coinsBalance} LC
                   <ChevronRight className="h-3.5 w-3.5 opacity-70 transition group-hover:translate-x-0.5 group-hover:opacity-100" />
                 </span>
               </div>
               {typeof coinsPending === "number" && coinsPending > 0 ? (
-                <div className="mt-1 text-[11px] opacity-80">
+                <div className="mt-1 text-[11px] text-emerald-100/85">
                   +{coinsPending} LC aguardando pós-evento
                 </div>
               ) : (
-                <div className="mt-0.5 text-[11px] opacity-75">Benefícios, Ranking e Extrato</div>
+                <div className="mt-0.5 text-[11px] text-emerald-100/80">
+                  Benefícios, Ranking e Extrato
+                </div>
               )}
             </Link>
           )}
@@ -198,7 +202,7 @@ export function AppShell({
             typeof adminSemesterAlertsCount === "number" &&
             adminSemesterAlertsCount > 0 && (
               <Link
-                to="/admin"
+                to="/admin/pendencias-semestrais"
                 title="Equipes que ainda não cumpriram as exigências semestrais da Liga UNI"
                 className="group mt-2 block rounded-lg border border-red-400/50 bg-red-500/20 px-3 py-2 text-xs transition hover:border-red-400/80 hover:bg-red-500/30"
               >
@@ -207,7 +211,7 @@ export function AppShell({
                     <span className="inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-red-500 text-[11px] font-black text-white">
                       !
                     </span>
-                    <span>{adminSemesterAlertsCount} time(s) c/ exigências pendentes</span>
+                    <span>Equipes com exigências pendentes: {adminSemesterAlertsCount}</span>
                   </span>
                   <ChevronRight className="h-3.5 w-3.5 shrink-0 text-red-200 opacity-75" />
                 </div>
@@ -291,16 +295,7 @@ export function AppShell({
         </div>
       </aside>
       <main className="flex-1 p-6 md:p-10">
-        <div className="mb-4 flex items-center justify-between md:hidden">
-          {showDemo && (
-            <button
-              type="button"
-              onClick={switchDemoRole}
-              className="text-xs font-medium text-primary underline"
-            >
-              {isAdminBadge ? "Alternar p/ Líder (Demo)" : "Alternar p/ Admin (Demo)"}
-            </button>
-          )}
+        <div className="mb-4 flex items-center justify-end md:hidden">
           <button onClick={signOut} className="text-sm text-muted-foreground underline">
             Sair
           </button>

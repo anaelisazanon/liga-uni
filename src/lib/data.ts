@@ -130,6 +130,7 @@ export function calcWorkshopCoins(memberCount: number, isJoint?: boolean): numbe
 }
 
 export function calculateEntityCoins({
+  entityId,
   reservations = [],
   trainingRegistrations = [],
   staffVolunteers = [],
@@ -137,6 +138,7 @@ export function calculateEntityCoins({
   meetingAttendances = [],
   rewardRedemptions = [],
 }: {
+  entityId?: string;
   reservations?: Reservation[];
   trainingRegistrations?: TrainingRegistration[];
   staffVolunteers?: StaffVolunteer[];
@@ -206,8 +208,11 @@ export function calculateEntityCoins({
     0,
   );
 
+  const isFreshRegisteredTeam = entityId === "ent-5";
+  const welcomeBonus = isFreshRegisteredTeam ? 0 : CREDITS_WELCOME;
+
   const earnedCredits =
-    CREDITS_WELCOME + meetingPoints + staffEarned + trainingEarned + workshopEarned;
+    welcomeBonus + meetingPoints + staffEarned + trainingEarned + workshopEarned;
 
   const pendingCredits =
     pendingMeetingPoints + staffPending + trainingPending + workshopPending;
@@ -306,12 +311,12 @@ export function calculateSemesterRequirements({
   const activeMeetings = generalMeetings.filter((m) => m.ativa);
   const targetMeetings = Math.max(2, activeMeetings.length);
 
-  // Entidades do catálogo geral (ent-2 a ent-17) já estão em dia no semestre atual;
-  // ent-1 (GERM), ent-udesc-ficticio (Grupo Quasar — UDESC Teste) e novas entidades usam os registros reais do banco.
+  // Entidades do catálogo geral já estão em dia no semestre atual;
+  // ent-1 (GERM) e ent-5 (Babitonga — UFSC Joinville) usam os registros reais do banco.
   const isCatalogCompliantEntity =
     Boolean(entityId) &&
     entityId !== "ent-1" &&
-    entityId !== "ent-udesc-ficticio" &&
+    entityId !== "ent-5" &&
     /^ent-\d+$/.test(entityId!);
 
   const myAttendancesCount = entityId
@@ -362,7 +367,9 @@ export function calculateSemesterRequirements({
       statusText:
         missingMeetings === 0
           ? "Em dia em todas as reuniões"
-          : `Falta${missingMeetings > 1 ? "m" : ""} ${missingMeetings} reunião${missingMeetings > 1 ? "ões" : ""}`,
+          : missingMeetings === 1
+            ? "Falta 1 reunião"
+            : `Faltam ${missingMeetings} reuniões`,
       to: "/lider/reunioes",
     },
     {
@@ -377,7 +384,9 @@ export function calculateSemesterRequirements({
       statusText:
         missingStaff === 0
           ? "Meta de Staff cumprida"
-          : `Falta${missingStaff > 1 ? "m" : ""} ${missingStaff} evento${missingStaff > 1 ? "s" : ""} como Staff`,
+          : missingStaff === 1
+            ? "Falta 1 evento como Staff"
+            : `Faltam ${missingStaff} eventos como Staff`,
       to: "/lider/capacitacoes",
       search: { tab: "staff" },
     },
@@ -393,7 +402,9 @@ export function calculateSemesterRequirements({
       statusText:
         missingTrainings === 0
           ? "Meta de Capacitações cumprida"
-          : `Falta${missingTrainings > 1 ? "m" : ""} ${missingTrainings} capacitação${missingTrainings > 1 ? "ões" : ""}`,
+          : missingTrainings === 1
+            ? "Falta 1 capacitação"
+            : `Faltam ${missingTrainings} capacitações`,
       to: "/lider/capacitacoes",
       search: { tab: "capacitacoes" },
     },
@@ -409,7 +420,9 @@ export function calculateSemesterRequirements({
       statusText:
         missingWorkshops === 0
           ? "Meta de Oficina cumprida"
-          : `Falta ${missingWorkshops} oficina no semestre`,
+          : missingWorkshops === 1
+            ? "Falta 1 oficina no semestre"
+            : `Faltam ${missingWorkshops} oficinas no semestre`,
       to: "/lider/capacitacoes",
       search: { tab: "oficinas" },
     },
@@ -425,7 +438,7 @@ export function calculateSemesterRequirements({
     totalRequirements,
     missingRequirementsCount,
     isCompliant: missingRequirementsCount === 0,
-    isCriticalAlert: entityId === "ent-udesc-ficticio" || fulfilledCount <= 1,
+    isCriticalAlert: entityId === "ent-5" || fulfilledCount <= 1,
     items,
   };
 }

@@ -262,6 +262,7 @@ export type Database = {
       };
       peer_workshops: {
         Row: {
+          admin_note?: string | null;
           created_at: string;
           data_sugerida: string;
           descricao: string;
@@ -277,6 +278,7 @@ export type Database = {
           titulo: string;
         };
         Insert: {
+          admin_note?: string | null;
           created_at?: string;
           data_sugerida?: string;
           descricao?: string;
@@ -292,6 +294,7 @@ export type Database = {
           titulo: string;
         };
         Update: {
+          admin_note?: string | null;
           created_at?: string;
           data_sugerida?: string;
           descricao?: string;
@@ -405,6 +408,7 @@ export type Database = {
       };
       reward_redemptions: {
         Row: {
+          admin_note?: string | null;
           created_at: string;
           custo: number;
           entity_id: string;
@@ -415,6 +419,7 @@ export type Database = {
           status: Database["public"]["Enums"]["reservation_status"];
         };
         Insert: {
+          admin_note?: string | null;
           created_at?: string;
           custo: number;
           entity_id: string;
@@ -425,6 +430,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["reservation_status"];
         };
         Update: {
+          admin_note?: string | null;
           created_at?: string;
           custo?: number;
           entity_id?: string;

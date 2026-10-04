@@ -43,25 +43,11 @@ export const SEED_PROJECTS: SeedProject[] = [
       { id: "mem-7", nome: "Lucas Tavares", email: "lucas.atletica@edu.udesc.br", curso: "Engenharia Elétrica" },
     ],
   },
-  // 3. Grupo Fictício da UDESC Joinville (Para teste de não cumprimento das exigências semestrais)
-  {
-    id: "ent-udesc-ficticio",
-    leaderId: "user-leader-pendente",
-    leaderNome: "Líder do Grupo Quasar (UDESC — Fictício)",
-    leaderEmail: "lider.pendente@example.com",
-    nome: "Grupo Quasar de Sistemas Autônomos (UDESC Joinville — Fictício)",
-    descricao:
-      "Grupo fictício da UDESC Joinville criado para demonstração e teste de alerta de equipe que ainda não cumpriu as exigências semestrais de permanência na Liga UNI.",
-    members: [
-      { id: "mem-8", nome: "Marcos Vinícius", email: "marcos.quasar@edu.udesc.br", curso: "Engenharia Elétrica" },
-      { id: "mem-9", nome: "Camila Rocha", email: "camila.quasar@edu.udesc.br", curso: "Ciência da Computação" },
-    ],
-  },
 
   // ===========================================================================
   // IFSC Joinville
   // ===========================================================================
-  // 4. STELLA (IFSC Joinville)
+  // 3. STELLA (IFSC Joinville)
   {
     id: "ent-3",
     leaderId: "user-leader-3",

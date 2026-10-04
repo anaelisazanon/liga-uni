@@ -57,8 +57,9 @@ const emptyTrainingForm = {
   descricao: "",
   ministrante: "",
   local: "Auditório Principal Ágora",
-  inicio: "",
-  fim: "",
+  data: "",
+  horaInicio: "",
+  horaFim: "",
   vagas: "",
   obrigatoria: false,
   ativa: true,
@@ -68,17 +69,25 @@ const emptyStaffForm = {
   titulo: "",
   descricao: "",
   local: "Auditório Principal Ágora",
-  inicio: "",
-  fim: "",
+  data: "",
+  horaInicio: "",
+  horaFim: "",
   vagas: "10",
   ativa: true,
 };
 
-function toLocalInput(iso: string) {
+function toLocalDate(iso: string) {
   if (!iso) return "";
   const d = new Date(iso);
   const pad = (n: number) => String(n).padStart(2, "0");
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
+
+function toLocalTime(iso: string) {
+  if (!iso) return "";
+  const d = new Date(iso);
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
 function AdminCapacitacoesPage() {
@@ -114,8 +123,9 @@ function AdminCapacitacoesPage() {
       descricao: t.descricao ?? "",
       ministrante: t.ministrante ?? "",
       local: t.local ?? "Auditório Principal Ágora",
-      inicio: toLocalInput(t.inicio),
-      fim: toLocalInput(t.fim),
+      data: toLocalDate(t.inicio),
+      horaInicio: toLocalTime(t.inicio),
+      horaFim: toLocalTime(t.fim),
       vagas: t.vagas ? String(t.vagas) : "",
       obrigatoria: t.obrigatoria,
       ativa: t.ativa,
@@ -135,8 +145,9 @@ function AdminCapacitacoesPage() {
       titulo: c.titulo,
       descricao: c.descricao ?? "",
       local: c.local ?? "Auditório Principal Ágora",
-      inicio: toLocalInput(c.inicio),
-      fim: toLocalInput(c.fim),
+      data: toLocalDate(c.inicio),
+      horaInicio: toLocalTime(c.inicio),
+      horaFim: toLocalTime(c.fim),
       vagas: c.vagas ? String(c.vagas) : "",
       ativa: c.ativa,
     });
@@ -145,16 +156,21 @@ function AdminCapacitacoesPage() {
 
   const save = useMutation({
     mutationFn: async () => {
-      if (new Date(form.fim) <= new Date(form.inicio)) {
-        throw new Error("A data final precisa ser posterior à inicial.");
+      if (!form.data || !form.horaInicio || !form.horaFim) {
+        throw new Error("Informe o dia, horário de início e horário de término.");
+      }
+      if (form.horaFim <= form.horaInicio) {
+        throw new Error(
+          "O horário de término precisa ser posterior ao horário de início no mesmo dia.",
+        );
       }
       const payload = {
         titulo: form.titulo.trim(),
         descricao: form.descricao.trim() || null,
         ministrante: form.ministrante.trim() || null,
         local: form.local.trim() || null,
-        inicio: new Date(form.inicio).toISOString(),
-        fim: new Date(form.fim).toISOString(),
+        inicio: new Date(`${form.data}T${form.horaInicio}`).toISOString(),
+        fim: new Date(`${form.data}T${form.horaFim}`).toISOString(),
         vagas: form.vagas ? Number(form.vagas) : null,
         obrigatoria: form.obrigatoria,
         ativa: form.ativa,
@@ -182,15 +198,20 @@ function AdminCapacitacoesPage() {
 
   const saveStaff = useMutation({
     mutationFn: async () => {
-      if (new Date(staffForm.fim) <= new Date(staffForm.inicio)) {
-        throw new Error("A data final precisa ser posterior à inicial.");
+      if (!staffForm.data || !staffForm.horaInicio || !staffForm.horaFim) {
+        throw new Error("Informe o dia, horário de início e horário de término.");
+      }
+      if (staffForm.horaFim <= staffForm.horaInicio) {
+        throw new Error(
+          "O horário de término precisa ser posterior ao horário de início no mesmo dia.",
+        );
       }
       const payload = {
         titulo: staffForm.titulo.trim(),
         descricao: staffForm.descricao.trim() || null,
         local: staffForm.local.trim() || null,
-        inicio: new Date(staffForm.inicio).toISOString(),
-        fim: new Date(staffForm.fim).toISOString(),
+        inicio: new Date(`${staffForm.data}T${staffForm.horaInicio}`).toISOString(),
+        fim: new Date(`${staffForm.data}T${staffForm.horaFim}`).toISOString(),
         vagas: staffForm.vagas ? Number(staffForm.vagas) : null,
         ativa: staffForm.ativa,
       };
@@ -623,24 +644,35 @@ function AdminCapacitacoesPage() {
                 </select>
               </div>
             </div>
-            <div className="grid grid-cols-1 gap-3">
+            <div className="space-y-3 rounded-xl border bg-muted/20 p-3">
               <div className="space-y-1.5">
-                <Label>Início</Label>
+                <Label>Dia da capacitação</Label>
                 <Input
-                  type="datetime-local"
+                  type="date"
                   required
-                  value={form.inicio}
-                  onChange={(e) => setForm({ ...form, inicio: e.target.value })}
+                  value={form.data}
+                  onChange={(e) => setForm({ ...form, data: e.target.value })}
                 />
               </div>
-              <div className="space-y-1.5">
-                <Label>Fim</Label>
-                <Input
-                  type="datetime-local"
-                  required
-                  value={form.fim}
-                  onChange={(e) => setForm({ ...form, fim: e.target.value })}
-                />
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label>Horário de início</Label>
+                  <Input
+                    type="time"
+                    required
+                    value={form.horaInicio}
+                    onChange={(e) => setForm({ ...form, horaInicio: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label>Horário de término</Label>
+                  <Input
+                    type="time"
+                    required
+                    value={form.horaFim}
+                    onChange={(e) => setForm({ ...form, horaFim: e.target.value })}
+                  />
+                </div>
               </div>
             </div>
             <div className="space-y-1.5">
@@ -743,24 +775,35 @@ function AdminCapacitacoesPage() {
                 />
               </div>
             </div>
-            <div className="grid grid-cols-1 gap-3">
+            <div className="space-y-3 rounded-xl border bg-muted/20 p-3">
               <div className="space-y-1.5">
-                <Label>Início</Label>
+                <Label>Dia do evento</Label>
                 <Input
-                  type="datetime-local"
+                  type="date"
                   required
-                  value={staffForm.inicio}
-                  onChange={(e) => setStaffForm({ ...staffForm, inicio: e.target.value })}
+                  value={staffForm.data}
+                  onChange={(e) => setStaffForm({ ...staffForm, data: e.target.value })}
                 />
               </div>
-              <div className="space-y-1.5">
-                <Label>Fim</Label>
-                <Input
-                  type="datetime-local"
-                  required
-                  value={staffForm.fim}
-                  onChange={(e) => setStaffForm({ ...staffForm, fim: e.target.value })}
-                />
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label>Horário de início</Label>
+                  <Input
+                    type="time"
+                    required
+                    value={staffForm.horaInicio}
+                    onChange={(e) => setStaffForm({ ...staffForm, horaInicio: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label>Horário de término</Label>
+                  <Input
+                    type="time"
+                    required
+                    value={staffForm.horaFim}
+                    onChange={(e) => setStaffForm({ ...staffForm, horaFim: e.target.value })}
+                  />
+                </div>
               </div>
             </div>
             <div className="flex items-center justify-between rounded-lg border border-border p-3">
