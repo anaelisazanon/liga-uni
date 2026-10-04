@@ -51,8 +51,10 @@ import {
   meetingAttendancesQuery,
   myEntityQuery,
   peerWorkshopsQuery,
+  portalConfigQuery,
   reservationsQuery,
   REWARD_CATALOG,
+  rewardCatalogQuery,
   rewardRedemptionsQuery,
   roomsQuery,
   staffCallsQuery,
@@ -100,6 +102,10 @@ function LiderLigaCoinsPage() {
     ...rewardRedemptionsQuery(id),
     enabled: !!id,
   });
+  const { data: rewardCatalog = REWARD_CATALOG } = useQuery(rewardCatalogQuery);
+  const { data: portalConfig } = useQuery(portalConfigQuery);
+  const activeRewards = rewardCatalog.filter((r) => r.ativo !== false);
+  const roomCost = portalConfig?.roomReservationCost ?? CREDITS_COST_ROOM;
 
   const [selectedReward, setSelectedReward] = useState<RewardItem | null>(null);
   const [observacao, setObservacao] = useState("");
@@ -430,11 +436,11 @@ function LiderLigaCoinsPage() {
                       <div className="flex items-center gap-2">
                         <span className="text-sm font-semibold">Reservar Salas do Ágora</span>
                         <span className="rounded-full bg-primary/15 px-2 py-0.5 text-[11px] font-bold text-primary">
-                          -{CREDITS_COST_ROOM} LC (reunião)
+                          -{roomCost} LC (reunião)
                         </span>
                       </div>
                       <p className="text-xs text-muted-foreground">
-                        Salas para Reuniões de Equipe (-{CREDITS_COST_ROOM} LC) ou para Oferecer
+                        Salas para Reuniões de Equipe (-{roomCost} LC) ou para Oferecer
                         Oficina (Grátis)
                       </p>
                     </div>
@@ -457,8 +463,8 @@ function LiderLigaCoinsPage() {
                           Mentorias VIP, Divulgação & Coffee Break
                         </span>
                         <span className="rounded-full bg-primary/15 px-2 py-0.5 text-[11px] font-bold text-primary">
-                          -{REWARD_CATALOG[0]?.custo ?? 100} a -
-                          {REWARD_CATALOG[REWARD_CATALOG.length - 1]?.custo ?? 400} LC
+                          -{activeRewards[0]?.custo ?? 100} a -
+                          {activeRewards[activeRewards.length - 1]?.custo ?? 400} LC
                         </span>
                       </div>
                       <p className="text-xs text-muted-foreground">
@@ -507,7 +513,7 @@ function LiderLigaCoinsPage() {
             divulgação oficial, estandes ou kits de apoio.
           </p>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {REWARD_CATALOG.map((item) => {
+            {activeRewards.map((item) => {
               const canAfford = coins.balanceCredits >= item.custo;
               return (
                 <Card
@@ -840,6 +846,11 @@ function LiderLigaCoinsPage() {
                           {fmtDateTime(red.created_at)}
                           {red.observacao ? ` · ${red.observacao}` : ""}
                         </div>
+                        {red.admin_note && (
+                          <div className="mt-1 text-xs font-medium text-destructive">
+                            Justificativa da recusa: {red.admin_note}
+                          </div>
+                        )}
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
@@ -865,6 +876,11 @@ function LiderLigaCoinsPage() {
                             {fmtDateTime(r.inicio)} ·{" "}
                             {isCap ? "Oficina p/ equipes" : "Reunião de equipe"}
                           </div>
+                          {r.admin_note && (
+                            <div className="mt-1 text-xs font-medium text-destructive">
+                              Justificativa da recusa: {r.admin_note}
+                            </div>
+                          )}
                         </div>
                       </div>
                       <div className="text-right">

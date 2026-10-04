@@ -52,9 +52,10 @@ export type RewardItem = {
   descricao: string;
   custo: number;
   categoria: "Ecossistema" | "Divulgação" | "Estrutura" | "Reconhecimento";
+  ativo?: boolean;
 };
 
-export const REWARD_CATALOG: RewardItem[] = [
+export const DEFAULT_REWARD_CATALOG: RewardItem[] = [
   {
     id: "mentoria-empresa",
     titulo: "Mentoria VIP com Empresa Residente do Ágora",
@@ -62,6 +63,7 @@ export const REWARD_CATALOG: RewardItem[] = [
       "Sessão exclusiva de 1h30 de mentoria técnica, produto ou captação de patrocínio com especialistas de empresas do Ágora Tech Park.",
     custo: 100,
     categoria: "Ecossistema",
+    ativo: true,
   },
   {
     id: "divulgacao-oficial",
@@ -70,6 +72,7 @@ export const REWARD_CATALOG: RewardItem[] = [
       "Post/Reels institucional destacando as conquistas, processo seletivo ou protótipo da sua entidade nos canais do Ágora.",
     custo: 150,
     categoria: "Divulgação",
+    ativo: true,
   },
   {
     id: "estande-mostra",
@@ -78,6 +81,7 @@ export const REWARD_CATALOG: RewardItem[] = [
       "Espaço privilegiado no Hall Principal do Ágora para exposição do protótipo e captação de parceiros durante os grandes eventos.",
     custo: 220,
     categoria: "Estrutura",
+    ativo: true,
   },
   {
     id: "coffee-integracao",
@@ -86,6 +90,7 @@ export const REWARD_CATALOG: RewardItem[] = [
       "Apoio com café e lanches fornecidos pela organização para um workshop ou reunião aberta realizada pela sua entidade no Ágora.",
     custo: 280,
     categoria: "Estrutura",
+    ativo: true,
   },
   {
     id: "kit-destaque-ano",
@@ -94,8 +99,196 @@ export const REWARD_CATALOG: RewardItem[] = [
       "Reconhecimento oficial na cerimônia de encerramento do ano com certificado de excelência, brindes personalizados para a equipe e destaque no relatório anual do Ágora.",
     custo: 400,
     categoria: "Reconhecimento",
+    ativo: true,
   },
 ];
+
+export type PortalConfig = {
+  semesterLabel: string;
+  goalMeetingsAll: boolean;
+  goalMeetingsCustom: number;
+  goalStaff: number;
+  goalTrainings: number;
+  goalWorkshops: number;
+  roomReservationCost: number;
+  welcomeCoins: number;
+  meetingEventCoins: number;
+  meetingMemberCoins: number;
+  staffEventCoins: number;
+  staffMemberCoins: number;
+  trainingEventCoins: number;
+  trainingMemberCoins: number;
+  workshopEventCoins: number;
+  workshopMemberCoins: number;
+  workshopJointBonusCoins: number;
+};
+
+export const DEFAULT_PORTAL_CONFIG: PortalConfig = {
+  semesterLabel: "2026/2",
+  goalMeetingsAll: true,
+  goalMeetingsCustom: 2,
+  goalStaff: 2,
+  goalTrainings: 2,
+  goalWorkshops: 1,
+  roomReservationCost: 15,
+  welcomeCoins: 30,
+  meetingEventCoins: 50,
+  meetingMemberCoins: 25,
+  staffEventCoins: 40,
+  staffMemberCoins: 30,
+  trainingEventCoins: 10,
+  trainingMemberCoins: 5,
+  workshopEventCoins: 25,
+  workshopMemberCoins: 10,
+  workshopJointBonusCoins: 20,
+};
+
+const PORTAL_CONFIG_STORAGE_KEY = "liga_uni_portal_config_v1";
+const REWARD_CATALOG_STORAGE_KEY = "liga_uni_reward_catalog_v1";
+
+export function getPortalConfig(): PortalConfig {
+  if (typeof window === "undefined") return DEFAULT_PORTAL_CONFIG;
+  try {
+    const raw = window.localStorage.getItem(PORTAL_CONFIG_STORAGE_KEY);
+    if (!raw) return DEFAULT_PORTAL_CONFIG;
+    const parsed = JSON.parse(raw) as Partial<PortalConfig>;
+    return { ...DEFAULT_PORTAL_CONFIG, ...parsed };
+  } catch {
+    return DEFAULT_PORTAL_CONFIG;
+  }
+}
+
+export function savePortalConfig(next: PortalConfig): PortalConfig {
+  const merged = { ...DEFAULT_PORTAL_CONFIG, ...next };
+  if (typeof window !== "undefined") {
+    try {
+      window.localStorage.setItem(PORTAL_CONFIG_STORAGE_KEY, JSON.stringify(merged));
+    } catch {
+      // ignore
+    }
+  }
+  return merged;
+}
+
+export function getRewardCatalog(): RewardItem[] {
+  if (typeof window === "undefined") return DEFAULT_REWARD_CATALOG;
+  try {
+    const raw = window.localStorage.getItem(REWARD_CATALOG_STORAGE_KEY);
+    if (!raw) return DEFAULT_REWARD_CATALOG;
+    const parsed = JSON.parse(raw);
+    if (Array.isArray(parsed) && parsed.length > 0) return parsed as RewardItem[];
+    return DEFAULT_REWARD_CATALOG;
+  } catch {
+    return DEFAULT_REWARD_CATALOG;
+  }
+}
+
+export function saveRewardCatalog(items: RewardItem[]): RewardItem[] {
+  if (typeof window !== "undefined") {
+    try {
+      window.localStorage.setItem(REWARD_CATALOG_STORAGE_KEY, JSON.stringify(items));
+    } catch {
+      // ignore
+    }
+  }
+  return items;
+}
+
+export const REWARD_CATALOG: RewardItem[] = DEFAULT_REWARD_CATALOG;
+
+export const portalConfigQuery = queryOptions({
+  queryKey: ["portal-config"],
+  queryFn: async () => getPortalConfig(),
+});
+
+export const rewardCatalogQuery = queryOptions({
+  queryKey: ["reward-catalog"],
+  queryFn: async () => getRewardCatalog(),
+});
+
+export type AdminActionLogEntry = {
+  id: string;
+  createdAt: string;
+  action: "approved" | "rejected";
+  category:
+    | "Reunião Liga UNI"
+    | "Capacitação UNI"
+    | "Staff em Evento"
+    | "Oficina de Equipe"
+    | "Reserva de Sala"
+    | "Benefício LigaCoins"
+    | "Cadastro de Líder";
+  item: string;
+  entityLabel: string;
+  justification?: string | null;
+  coinsLabel?: string | null;
+};
+
+const ADMIN_ACTION_LOG_STORAGE_KEY = "liga_uni_admin_action_log_v1";
+
+export function getAdminActionLogs(): AdminActionLogEntry[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = window.localStorage.getItem(ADMIN_ACTION_LOG_STORAGE_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    if (Array.isArray(parsed)) return parsed as AdminActionLogEntry[];
+    return [];
+  } catch {
+    return [];
+  }
+}
+
+export function appendAdminActionLog(
+  entry: Omit<AdminActionLogEntry, "id" | "createdAt"> & { createdAt?: string },
+): AdminActionLogEntry {
+  const newEntry: AdminActionLogEntry = {
+    id: `log-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+    createdAt: entry.createdAt ?? new Date().toISOString(),
+    action: entry.action,
+    category: entry.category,
+    item: entry.item,
+    entityLabel: entry.entityLabel,
+    justification: entry.justification ?? null,
+    coinsLabel: entry.coinsLabel ?? null,
+  };
+  if (typeof window !== "undefined") {
+    try {
+      const current = getAdminActionLogs();
+      const next = [newEntry, ...current].slice(0, 200);
+      window.localStorage.setItem(ADMIN_ACTION_LOG_STORAGE_KEY, JSON.stringify(next));
+    } catch {
+      // ignore
+    }
+  }
+  return newEntry;
+}
+
+export const adminActionLogQuery = queryOptions({
+  queryKey: ["admin-action-log"],
+  queryFn: async () => getAdminActionLogs(),
+});
+
+export function escapeCsvCell(val: unknown): string {
+  if (val === null || val === undefined) return '""';
+  const str = String(val).replace(/\r?\n/g, " ").trim();
+  return `"${str.replace(/"/g, '""')}"`;
+}
+
+export function downloadCsvFile(filename: string, rows: (string | number | null | undefined)[][]) {
+  if (typeof window === "undefined") return;
+  const csvContent =
+    "\uFEFF" + rows.map((row) => row.map((cell) => escapeCsvCell(cell)).join(";")).join("\r\n");
+  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.setAttribute("download", filename);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
 
 export function countParticipants(listStr: string): number {
   if (!listStr || !listStr.trim()) return 0;
@@ -107,25 +300,29 @@ export function countParticipants(listStr: string): number {
 
 export function calcTrainingCoins(memberCount: number): number {
   if (memberCount <= 0) return 0;
-  return CREDITS_PER_TRAINING_EVENT + memberCount * CREDITS_PER_TRAINING_MEMBER;
+  const cfg = getPortalConfig();
+  return cfg.trainingEventCoins + memberCount * cfg.trainingMemberCoins;
 }
 
 export function calcStaffCoins(memberCount: number): number {
   if (memberCount <= 0) return 0;
-  return CREDITS_PER_STAFF_EVENT + memberCount * CREDITS_PER_STAFF_MEMBER;
+  const cfg = getPortalConfig();
+  return cfg.staffEventCoins + memberCount * cfg.staffMemberCoins;
 }
 
 export function calcMeetingCoins(memberCount: number): number {
   if (memberCount <= 0) return 0;
-  return CREDITS_PER_MEETING_EVENT + memberCount * CREDITS_PER_MEETING_MEMBER;
+  const cfg = getPortalConfig();
+  return cfg.meetingEventCoins + memberCount * cfg.meetingMemberCoins;
 }
 
 export function calcWorkshopCoins(memberCount: number, isJoint?: boolean): number {
   if (memberCount <= 0) return 0;
+  const cfg = getPortalConfig();
   return (
-    CREDITS_PER_PEER_WORKSHOP +
-    memberCount * CREDITS_PER_WORKSHOP_MEMBER +
-    (isJoint ? CREDITS_PER_JOINT_WORKSHOP_BONUS : 0)
+    cfg.workshopEventCoins +
+    memberCount * cfg.workshopMemberCoins +
+    (isJoint ? cfg.workshopJointBonusCoins : 0)
   );
 }
 
@@ -208,8 +405,9 @@ export function calculateEntityCoins({
     0,
   );
 
+  const cfg = getPortalConfig();
   const isFreshRegisteredTeam = entityId === "ent-5";
-  const welcomeBonus = isFreshRegisteredTeam ? 0 : CREDITS_WELCOME;
+  const welcomeBonus = isFreshRegisteredTeam ? 0 : cfg.welcomeCoins;
 
   const earnedCredits =
     welcomeBonus + meetingPoints + staffEarned + trainingEarned + workshopEarned;
@@ -228,7 +426,7 @@ export function calculateEntityCoins({
   const activeRedemptions = rewardRedemptions.filter((red) => red.status !== "rejected");
   const redemptionsSpent = activeRedemptions.reduce((acc, red) => acc + red.custo, 0);
 
-  const usedCredits = paidRoomReservations.length * CREDITS_COST_ROOM + redemptionsSpent;
+  const usedCredits = paidRoomReservations.length * cfg.roomReservationCost + redemptionsSpent;
 
   const balanceCredits = Math.max(0, earnedCredits - usedCredits);
 
@@ -308,8 +506,14 @@ export function calculateSemesterRequirements({
   trainingRegistrations?: TrainingRegistration[];
   peerWorkshops?: PeerWorkshop[];
 }): SemesterRequirementsSummary {
+  const cfg = getPortalConfig();
   const activeMeetings = generalMeetings.filter((m) => m.ativa);
-  const targetMeetings = Math.max(2, activeMeetings.length);
+  const targetMeetings = cfg.goalMeetingsAll
+    ? Math.max(1, activeMeetings.length)
+    : Math.max(0, cfg.goalMeetingsCustom);
+  const goalStaff = Math.max(0, cfg.goalStaff);
+  const goalTrainings = Math.max(0, cfg.goalTrainings);
+  const goalWorkshops = Math.max(0, cfg.goalWorkshops);
 
   // Entidades do catálogo geral já estão em dia no semestre atual;
   // ent-1 (GERM) e ent-5 (Babitonga — UFSC Joinville) usam os registros reais do banco.
@@ -340,26 +544,30 @@ export function calculateSemesterRequirements({
     ? targetMeetings
     : Math.min(targetMeetings, myAttendancesCount);
   const staffDone = isCatalogCompliantEntity
-    ? SEMESTER_GOAL_STAFF
-    : Math.min(SEMESTER_GOAL_STAFF, myStaffCount);
+    ? goalStaff
+    : Math.min(goalStaff, myStaffCount);
   const trainingsDone = isCatalogCompliantEntity
-    ? SEMESTER_GOAL_TRAININGS
-    : Math.min(SEMESTER_GOAL_TRAININGS, myTrainingsCount);
+    ? goalTrainings
+    : Math.min(goalTrainings, myTrainingsCount);
   const workshopsDone = isCatalogCompliantEntity
-    ? SEMESTER_GOAL_WORKSHOPS
-    : Math.min(SEMESTER_GOAL_WORKSHOPS, myWorkshopsCount);
+    ? goalWorkshops
+    : Math.min(goalWorkshops, myWorkshopsCount);
 
   const missingMeetings = Math.max(0, targetMeetings - meetingsDone);
-  const missingStaff = Math.max(0, SEMESTER_GOAL_STAFF - staffDone);
-  const missingTrainings = Math.max(0, SEMESTER_GOAL_TRAININGS - trainingsDone);
-  const missingWorkshops = Math.max(0, SEMESTER_GOAL_WORKSHOPS - workshopsDone);
+  const missingStaff = Math.max(0, goalStaff - staffDone);
+  const missingTrainings = Math.max(0, goalTrainings - trainingsDone);
+  const missingWorkshops = Math.max(0, goalWorkshops - workshopsDone);
 
   const items: SemesterRequirementItem[] = [
     {
       key: "reunioes",
-      title: "Presença em todas as Reuniões Liga UNI",
+      title: cfg.goalMeetingsAll
+        ? "Presença em todas as Reuniões Liga UNI"
+        : `Presença em ${targetMeetings} Reunião(ões) Liga UNI`,
       shortTitle: "Reuniões Liga UNI",
-      ruleDescription: `Comparecer em 100% das reuniões gerais do semestre (${targetMeetings} convocadas)`,
+      ruleDescription: cfg.goalMeetingsAll
+        ? `Comparecer em 100% das reuniões gerais do semestre (${targetMeetings} convocadas)`
+        : `Comparecer em pelo menos ${targetMeetings} reunião(ões) geral(is) no semestre`,
       current: meetingsDone,
       target: targetMeetings,
       missing: missingMeetings,
@@ -376,9 +584,9 @@ export function calculateSemesterRequirements({
       key: "staff",
       title: "Ajudar como Staff em Eventos",
       shortTitle: "Staff em Eventos",
-      ruleDescription: `Atuar como staff em pelo menos ${SEMESTER_GOAL_STAFF} eventos do Ágora no semestre`,
+      ruleDescription: `Atuar como staff em pelo menos ${goalStaff} evento(s) do Ágora no semestre`,
       current: staffDone,
-      target: SEMESTER_GOAL_STAFF,
+      target: goalStaff,
       missing: missingStaff,
       fulfilled: missingStaff === 0,
       statusText:
@@ -394,9 +602,9 @@ export function calculateSemesterRequirements({
       key: "capacitacoes",
       title: "Participar de Capacitações UNI",
       shortTitle: "Capacitações UNI",
-      ruleDescription: `Inscrever membros em pelo menos ${SEMESTER_GOAL_TRAININGS} capacitações da Liga UNI`,
+      ruleDescription: `Inscrever membros em pelo menos ${goalTrainings} capacitação(ões) da Liga UNI`,
       current: trainingsDone,
-      target: SEMESTER_GOAL_TRAININGS,
+      target: goalTrainings,
       missing: missingTrainings,
       fulfilled: missingTrainings === 0,
       statusText:
@@ -412,9 +620,9 @@ export function calculateSemesterRequirements({
       key: "oficinas",
       title: "Oferecer Oficina pela Equipe",
       shortTitle: "Oferecer Oficina",
-      ruleDescription: `Ministrar pelo menos ${SEMESTER_GOAL_WORKSHOPS} oficina para outras entidades no semestre`,
+      ruleDescription: `Ministrar pelo menos ${goalWorkshops} oficina(s) para outras entidades no semestre`,
       current: workshopsDone,
-      target: SEMESTER_GOAL_WORKSHOPS,
+      target: goalWorkshops,
       missing: missingWorkshops,
       fulfilled: missingWorkshops === 0,
       statusText:
@@ -433,7 +641,7 @@ export function calculateSemesterRequirements({
   const missingRequirementsCount = totalRequirements - fulfilledCount;
 
   return {
-    semesterLabel: CURRENT_SEMESTER_LABEL,
+    semesterLabel: cfg.semesterLabel || CURRENT_SEMESTER_LABEL,
     fulfilledCount,
     totalRequirements,
     missingRequirementsCount,

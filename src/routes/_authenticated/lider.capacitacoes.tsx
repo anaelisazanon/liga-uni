@@ -1816,8 +1816,8 @@ export function LiderReunioesEquipeSubTab({
                       </div>
                       <div className="mt-0.5 text-xs text-muted-foreground">{r.motivo}</div>
                       {r.admin_note && (
-                        <div className="mt-1 text-xs italic text-muted-foreground">
-                          Observação do admin: {r.admin_note}
+                        <div className="mt-1.5 rounded-lg border border-destructive/30 bg-destructive/10 px-2.5 py-1 text-xs text-destructive">
+                          <b>Justificativa do administrador:</b> {r.admin_note}
                         </div>
                       )}
                     </TableCell>

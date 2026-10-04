@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import {
   ArrowRight,
   Building2,
@@ -7,11 +8,13 @@ import {
   ClipboardCheck,
   Coins,
   DoorOpen,
+  Download,
   Gift,
   GraduationCap,
   HandHelping,
   Lightbulb,
   Megaphone,
+  Settings2,
   ShieldCheck,
 } from "lucide-react";
 import { CoinPerPersonTag, PageHeader } from "@/components/AppShell";
@@ -27,6 +30,7 @@ import {
   CREDITS_PER_TRAINING_MEMBER,
   CREDITS_PER_WORKSHOP_MEMBER,
   REWARD_CATALOG,
+  rewardCatalogQuery,
 } from "@/lib/data";
 
 export const Route = createFileRoute("/_authenticated/admin/guia")({
@@ -35,11 +39,19 @@ export const Route = createFileRoute("/_authenticated/admin/guia")({
 });
 
 function AdminGuiaPage() {
+  const { data: rewardCatalog = REWARD_CATALOG } = useQuery(rewardCatalogQuery);
   return (
     <div className="space-y-8">
       <PageHeader
         title="Como funciona o Painel do Administrador"
-        description="Guia completo da Central de Aprovações em sub-abas horizontais, alertas de exigências semestrais (!), gestão de atividades e liberação de LigaCoins."
+        description="Guia completo da Central de Aprovações compacta por evento, alertas de exigências semestrais (!), gestão de atividades, configurações e exportação CSV."
+        action={
+          <Button variant="outline" size="sm" asChild>
+            <a href="/GUIA_FUNCIONAMENTO_PORTAL.md" download="GUIA_FUNCIONAMENTO_PORTAL.md">
+              <Download className="mr-1.5 size-4 text-primary" /> Baixar Guia Completo (.md)
+            </a>
+          </Button>
+        }
       />
 
       {/* Alerta Semestral (!) */}
@@ -272,10 +284,19 @@ function AdminGuiaPage() {
           </div>
 
           <div className="rounded-xl border border-border bg-card p-4 space-y-2 text-xs">
-            <div className="font-semibold text-foreground flex items-center gap-1.5">
-              <Gift className="size-4 text-amber-700" /> Catálogo de Prêmios (Loja LigaCoins):
+            <div className="flex items-center justify-between gap-2">
+              <div className="font-semibold text-foreground flex items-center gap-1.5">
+                <Gift className="size-4 text-amber-700" /> Catálogo de Prêmios (Loja LigaCoins):
+              </div>
+              <Link
+                to="/admin/configuracoes"
+                search={{ tab: "beneficios" }}
+                className="inline-flex items-center gap-1 text-[11px] font-semibold text-primary hover:underline"
+              >
+                <Settings2 className="size-3" /> Editar benefícios
+              </Link>
             </div>
-            {REWARD_CATALOG.map((r) => (
+            {rewardCatalog.map((r) => (
               <div key={r.id} className="flex justify-between text-muted-foreground">
                 <span className="truncate">{r.titulo}</span>
                 <span className="font-semibold text-amber-800 shrink-0">{r.custo} LC</span>

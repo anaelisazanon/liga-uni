@@ -52,6 +52,7 @@ type RecentRequestItem = {
   iconBg: string;
   title: string;
   subtitle: string;
+  adminNote?: string | null;
   createdAt: string;
   status: "pending" | "approved" | "rejected";
   coinsBadge?: { text: string; tone: "amber" | "green" | "primary" };
@@ -105,6 +106,7 @@ function LiderHome() {
         iconBg: "bg-primary/10 text-primary",
         title: roomName(r.room_id),
         subtitle: `${fmtDateTime(r.inicio)} · ${r.motivo}`,
+        adminNote: r.admin_note,
         createdAt: r.created_at,
         status: r.status,
         coinsBadge: isOficina
@@ -124,6 +126,7 @@ function LiderHome() {
         iconBg: "bg-success/15 text-success",
         title: w.titulo,
         subtitle: `Data sugerida: ${fmtDateTime(w.data_sugerida)} · ${w.ministrantes}`,
+        adminNote: w.admin_note,
         createdAt: w.created_at,
         status: w.moedas_liberadas ? "approved" : w.status,
         coinsBadge: {
@@ -203,6 +206,7 @@ function LiderHome() {
         iconBg: "bg-amber-500/15 text-amber-600",
         title: red.recompensa_titulo,
         subtitle: red.observacao || "Solicitação de resgate na Loja de Benefícios",
+        adminNote: red.admin_note,
         createdAt: red.created_at,
         status: red.status,
         coinsBadge: { text: `-${red.custo} LC`, tone: "primary" },
@@ -350,6 +354,11 @@ function LiderHome() {
                       <p className="mt-0.5 truncate text-xs text-muted-foreground">
                         {item.subtitle}
                       </p>
+                      {item.adminNote && (
+                        <div className="mt-1.5 rounded-lg border border-destructive/30 bg-destructive/10 px-2.5 py-1 text-xs text-destructive">
+                          <b>Justificativa do administrador:</b> {item.adminNote}
+                        </div>
+                      )}
                     </div>
                   </div>
 

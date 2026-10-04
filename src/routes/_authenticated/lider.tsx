@@ -17,6 +17,7 @@ import {
   meetingAttendancesQuery,
   myEntityQuery,
   peerWorkshopsQuery,
+  portalConfigQuery,
   reservationsQuery,
   rewardRedemptionsQuery,
   staffCallsQuery,
@@ -51,6 +52,7 @@ function LiderLayout() {
   const { data: workshops = [] } = useQuery({ ...peerWorkshopsQuery(id), enabled: !!id });
   const { data: attendances = [] } = useQuery({ ...meetingAttendancesQuery(id), enabled: !!id });
   const { data: redemptions = [] } = useQuery({ ...rewardRedemptionsQuery(id), enabled: !!id });
+  useQuery(portalConfigQuery);
 
   const coins = calculateEntityCoins({
     entityId: id,

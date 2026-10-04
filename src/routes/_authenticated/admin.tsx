@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import {
   Building2,
   CalendarDays,
+  CalendarPlus,
   ClipboardCheck,
   DoorOpen,
   Gift,
@@ -12,6 +13,7 @@ import {
   Lightbulb,
   Megaphone,
   MessageSquare,
+  Settings2,
 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import {
@@ -22,6 +24,7 @@ import {
   leaderRequestsQuery,
   meetingAttendancesQuery,
   peerWorkshopsQuery,
+  portalConfigQuery,
   reservationsQuery,
   rewardRedemptionsQuery,
   staffVolunteersQuery,
@@ -48,6 +51,7 @@ function AdminLayout() {
   const { data: attendances = [] } = useQuery(meetingAttendancesQuery());
   const { data: redemptions = [] } = useQuery(rewardRedemptionsQuery());
   const { data: msgs = [] } = useQuery(adminMessagesQuery());
+  useQuery(portalConfigQuery);
 
   const adminSemesterAlertsCount = entities.filter(
     (e) =>
@@ -145,6 +149,8 @@ function AdminLayout() {
       ],
     },
     { to: "/admin/entidades", label: "Entidades", icon: Building2, count: pendingReqCount },
+    { to: "/admin/capacitacoes", label: "Eventos & Capacitações", icon: CalendarPlus },
+    { to: "/admin/configuracoes", label: "Salas, Benefícios & Config.", icon: Settings2 },
     { to: "/admin/calendario", label: "Calendário", icon: CalendarDays },
     { to: "/admin/chamados", label: "Chamados", icon: MessageSquare, count: pendingMsgsCount },
   ];

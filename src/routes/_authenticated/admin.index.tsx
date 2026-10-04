@@ -4,6 +4,7 @@ import {
   AlertTriangle,
   ArrowRight,
   Building2,
+  CalendarPlus,
   ClipboardCheck,
   Coins,
   DoorOpen,
@@ -14,8 +15,10 @@ import {
   Megaphone,
   MessageSquare,
   RefreshCw,
+  Settings2,
 } from "lucide-react";
 import { PageHeader, StatCard, StatusBadge } from "@/components/AppShell";
+import { AdminActionLog } from "@/components/AdminActionLog";
 import { Button } from "@/components/ui/button";
 import { fmtDateTime } from "@/lib/auth";
 import {
@@ -32,6 +35,7 @@ import {
   leaderRequestsQuery,
   meetingAttendancesQuery,
   peerWorkshopsQuery,
+  portalConfigQuery,
   reservationsQuery,
   rewardRedemptionsQuery,
   roomsQuery,
@@ -59,6 +63,7 @@ function AdminHome() {
   const { data: redemptions = [] } = useQuery(rewardRedemptionsQuery());
   const { data: leaderReqs = [] } = useQuery(leaderRequestsQuery);
   const { data: tickets = [] } = useQuery(adminMessagesQuery());
+  const { data: portalConfig } = useQuery(portalConfigQuery);
 
   const entityName = (id: string) => entities.find((e) => e.id === id)?.nome ?? "Entidade";
   const roomName = (id?: string | null) =>
@@ -250,12 +255,24 @@ function AdminHome() {
         title="Painel Administrativo"
         description="Visão geral das entidades universitárias, aprovações por categoria, alertas semestrais e liberação de LigaCoins no Ágora Tech Park."
         action={
-          <Button variant="hero" asChild>
-            <Link to="/admin/aprovacoes">
-              <ClipboardCheck className="size-4 mr-1" /> Central de Aprovações (
-              {totalPendingApprovals})
-            </Link>
-          </Button>
+          <div className="flex flex-wrap items-center gap-2">
+            <Button variant="outline" size="sm" asChild>
+              <Link to="/admin/capacitacoes">
+                <CalendarPlus className="size-4 mr-1" /> Adicionar Eventos & Capacitações
+              </Link>
+            </Button>
+            <Button variant="outline" size="sm" asChild>
+              <Link to="/admin/configuracoes">
+                <Settings2 className="size-4 mr-1" /> Salas, Benefícios & Config.
+              </Link>
+            </Button>
+            <Button variant="hero" size="sm" asChild>
+              <Link to="/admin/aprovacoes">
+                <ClipboardCheck className="size-4 mr-1" /> Central de Aprovações (
+                {totalPendingApprovals})
+              </Link>
+            </Button>
+          </div>
         }
       />
 
@@ -275,8 +292,8 @@ function AdminHome() {
                     {nonCompliantEntities.length > 1 ? "s" : ""})
                   </span>
                   <span className="inline-flex items-center gap-1 rounded-full bg-secondary px-2.5 py-0.5 text-[11px] font-medium text-muted-foreground">
-                    <RefreshCw className="h-3 w-3" /> Semestre {CURRENT_SEMESTER_LABEL} · Renova
-                    todo semestre
+                    <RefreshCw className="h-3 w-3" /> Semestre{" "}
+                    {portalConfig?.semesterLabel ?? CURRENT_SEMESTER_LABEL} · Renova todo semestre
                   </span>
                 </div>
                 <h2 className="mt-1 font-display text-base sm:text-lg font-bold text-foreground">
@@ -448,6 +465,9 @@ function AdminHome() {
           </div>
         )}
       </div>
+
+      {/* Log de Ações do Administrador */}
+      <AdminActionLog maxItems={15} />
     </div>
   );
 }
